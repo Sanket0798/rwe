@@ -30,8 +30,9 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true); // Add loading state for auth check
 
   // Fetch hospitals and physicians data
-  const { data: hospitals = [] } = useApi(API_ENDPOINTS.hospitals);
-  const { data: physicians = [] } = useApi(API_ENDPOINTS.physicians);
+  // Temporarily commented out - will be needed when PatientPrediction route is enabled
+  // const { data: hospitals = [] } = useApi(API_ENDPOINTS.hospitals);
+  // const { data: physicians = [] } = useApi(API_ENDPOINTS.physicians);
 
   // Check for existing authentication on app load
   useEffect(() => {
