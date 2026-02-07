@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import LoginImage from '../assets/Login_Image.png';
 import { validateSuperadmin } from '../config/superadmins';
@@ -116,8 +116,7 @@ const Login = ({ onLogin }) => {
                     <div className="w-full max-w-md">
                         <div className="flex justify-center items-center space-x-3 mb-6">
                             <div className="text-center">
-                                <h1 className="text-3xl font-bold text-gray-900 mb-1">ACTelligence</h1>
-                                <p className="text-sm text-gray-600">NexCAR19™ Clinical Analytics Platform</p>
+                                <h1 className="text-4xl font-bold mb-1 bg-gradient-to-r from-[#355699] via-[#307a78] to-[#86be22] bg-clip-text text-transparent h-11">ACT<span className='italic'>elligence</span></h1>
                             </div>
                         </div>
 
@@ -183,30 +182,7 @@ const Login = ({ onLogin }) => {
                                     )}
                                 </div>
 
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center">
-                                        <input
-                                            id="remember-me"
-                                            name="rememberMe"
-                                            type="checkbox"
-                                            checked={formData.rememberMe}
-                                            onChange={handleInputChange}
-                                            className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded cursor-pointer"
-                                        />
-                                        <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                                            Remember me
-                                        </label>
-                                    </div>
 
-                                    <div className="text-sm">
-                                        <Link
-                                            to="/forgot-password"
-                                            className="font-medium text-emerald-600 hover:text-emerald-500 transition-colors"
-                                        >
-                                            Forgot your password?
-                                        </Link>
-                                    </div>
-                                </div>
 
                                 {errors.general && (
                                     <div className="bg-red-50 border border-red-200 rounded-md p-3">
