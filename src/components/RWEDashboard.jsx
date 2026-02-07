@@ -2,10 +2,10 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import KaplanMeierModal from './KaplanMeierModal';
 import OverallCohortChart from './OverallCohortChart';
 import Global2 from './Global2';
-import APIStatus from './common/APIStatus';
+// import APIStatus from './common/APIStatus';
 import { useSurvivalAnalysis } from '../hooks/useSurvivalAnalysis';
 import { useFiltersData } from '../hooks/useFiltersData';
-import { fetchSurvivalAnalysis } from '../services/survivalAnalysisService';
+// import { fetchSurvivalAnalysis } from '../services/survivalAnalysisService';
 // Import test utilities for debugging
 import { testAPIConnection, testSurvivalAnalysis } from '../utils/apiTest';
 import { testOverallCohortAPI } from '../utils/testOverallCohort';
@@ -120,32 +120,32 @@ const getContrastTextColor = (percentage) => {
 
 // --- Overall Cohort Calculation Functions ---
 // Calculate weighted average for overall cohort (13th curve for NHL, 5th curve for B-ALL)
-const calculateOverallCohort = (dataset, analysisType) => {
-  let totalPatients = 0;
-  let weightedPfsSum = 0;
-  let weightedOsSum = 0;
+// const calculateOverallCohort = (dataset, analysisType) => {
+//   let totalPatients = 0;
+//   let weightedPfsSum = 0;
+//   let weightedOsSum = 0;
 
-  dataset.rows.forEach(row => {
-    dataset.columns.forEach(col => {
-      const cellData = row.values[col.id];
-      const patientCount = cellData.n;
+//   dataset.rows.forEach(row => {
+//     dataset.columns.forEach(col => {
+//       const cellData = row.values[col.id];
+//       const patientCount = cellData.n;
 
-      weightedPfsSum += (cellData.pfs * patientCount);
-      weightedOsSum += (cellData.os * patientCount);
-      totalPatients += patientCount;
-    });
-  });
+//       weightedPfsSum += (cellData.pfs * patientCount);
+//       weightedOsSum += (cellData.os * patientCount);
+//       totalPatients += patientCount;
+//     });
+//   });
 
-  return {
-    pfs: Math.round(weightedPfsSum / totalPatients),
-    os: Math.round(weightedOsSum / totalPatients),
-    totalPatients: totalPatients,
-    // Create mock data for Kaplan-Meier modal
-    n: totalPatients,
-    title: 'Overall Cohort',
-    description: `Combined analysis across all ${dataset.rows.length * dataset.columns.length} patient subgroups`
-  };
-};
+//   return {
+//     pfs: Math.round(weightedPfsSum / totalPatients),
+//     os: Math.round(weightedOsSum / totalPatients),
+//     totalPatients: totalPatients,
+//     // Create mock data for Kaplan-Meier modal
+//     n: totalPatients,
+//     title: 'Overall Cohort',
+//     description: `Combined analysis across all ${dataset.rows.length * dataset.columns.length} patient subgroups`
+//   };
+// };
 
 // --- DATA GENERATORS ---
 // Helper to generate mock data based on a base NexCAR dataset but skewed for SOC/Global
@@ -1337,8 +1337,8 @@ export default function RWEDashboard() {
   // Use the survival analysis hook for real data
   const {
     data: apiData,
-    loading: apiLoading,
-    error: apiError,
+    // loading: apiLoading,
+    // error: apiError,
     apiHealthy
   } = useSurvivalAnalysis(filters, activeIndication, activeModule);
 
@@ -1346,7 +1346,7 @@ export default function RWEDashboard() {
   const {
     filtersData,
     loading: filtersLoading,
-    error: filtersError
+    // error: filtersError
   } = useFiltersData();
 
   // Add test functions to window for debugging (development only)

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 
 const ComparisonTable = ({ data, metricType }) => {
   const [hoveredCell, setHoveredCell] = useState(null);
@@ -135,7 +135,7 @@ const ComparisonTable = ({ data, metricType }) => {
               </tr>
 
               {currentMetrics.map((row, rowIndex) => {
-                const insight = getComparisonInsight(row);
+                // const insight = getComparisonInsight(row);
                 return (
                   <tr key={`metric-${rowIndex}`} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 text-sm font-medium text-gray-900 bg-gray-50 border-r border-gray-200">

@@ -1,4 +1,5 @@
-import { Home, LineChart, Users, Brain, BarChart3 } from 'lucide-react';
+import { Home, BarChart3 } from 'lucide-react';
+// import { Home, LineChart, Users, Brain, BarChart3 } from 'lucide-react';
 
 export const NAVIGATION_TABS = [
   { id: 'home', label: 'Home', icon: Home, path: '/home' },
