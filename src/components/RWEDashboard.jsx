@@ -606,43 +606,43 @@ const SearchablePhysicianDropdown = ({
 // };
 
 // --- Component: Heat Map Legend ---
-const HeatMapLegend = ({ scheme = 'clinical' }) => {
-  const generateGradientCSS = (scheme) => {
-    const stops = GRADIENT_CONFIG[scheme].stops;
-    const gradientStops = stops.map(stop =>
-      `rgb(${stop.color[0]}, ${stop.color[1]}, ${stop.color[2]}) ${stop.percent}%`
-    ).join(', ');
-    return `linear-gradient(to right, ${gradientStops})`;
-  };
+// const HeatMapLegend = ({ scheme = 'clinical' }) => {
+//   const generateGradientCSS = (scheme) => {
+//     const stops = GRADIENT_CONFIG[scheme].stops;
+//     const gradientStops = stops.map(stop =>
+//       `rgb(${stop.color[0]}, ${stop.color[1]}, ${stop.color[2]}) ${stop.percent}%`
+//     ).join(', ');
+//     return `linear-gradient(to right, ${gradientStops})`;
+//   };
 
-  return (
-    <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4 mb-4">
-      <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
-        Continuous Color Gradient - Card View
-      </div>
-      <div className="flex items-center gap-4">
-        {/* Continuous Gradient Bar */}
-        <div className="flex-1">
-          <div
-            className="h-8 rounded-lg border border-slate-200"
-            style={{ background: generateGradientCSS(scheme) }}
-          />
-          <div className="flex justify-between text-xs text-slate-600 mt-2">
-            <span>0%</span>
-            <span>20%</span>
-            <span>40%</span>
-            <span>60%</span>
-            <span>80%</span>
-            <span>100%</span>
-          </div>
-          <div className="text-center text-xs text-slate-500 mt-1">
-            Every percentage gets a unique color
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+//   return (
+//     <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-4 mb-4">
+//       <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
+//         Continuous Color Gradient - Card View
+//       </div>
+//       <div className="flex items-center gap-4">
+//         {/* Continuous Gradient Bar */}
+//         <div className="flex-1">
+//           <div
+//             className="h-8 rounded-lg border border-slate-200"
+//             style={{ background: generateGradientCSS(scheme) }}
+//           />
+//           <div className="flex justify-between text-xs text-slate-600 mt-2">
+//             <span>0%</span>
+//             <span>20%</span>
+//             <span>40%</span>
+//             <span>60%</span>
+//             <span>80%</span>
+//             <span>100%</span>
+//           </div>
+//           <div className="text-center text-xs text-slate-500 mt-1">
+//             Every percentage gets a unique color
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
 
 // --- Component: Benchmarking Summary Bar ---
 const BenchmarkingSummary = ({ filters, activeIndication, currentDataset }) => {
