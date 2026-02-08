@@ -10,7 +10,7 @@ import { useFiltersData } from '../hooks/useFiltersData';
 import { testAPIConnection, testSurvivalAnalysis } from '../utils/apiTest';
 import { testOverallCohortAPI } from '../utils/testOverallCohort';
 import {
-  Users , Layers, Box, TrendingUp, TrendingDown,
+  Users, Layers, Box, TrendingUp, TrendingDown,
   Filter, ChevronLeft, Calendar, Check, CircleDot, Circle, Scale,
   ChevronDown, Search, X, ChevronUp
 } from 'lucide-react';
@@ -678,7 +678,7 @@ const BenchmarkingSummary = ({ filters, activeIndication, currentDataset }) => {
               </Badge>
             )}
             <Badge color="slate">
-              vs NexCAR19
+              vs Global CAR-T
             </Badge>
           </div>
         </div>
@@ -832,15 +832,17 @@ const FilterSidebar = ({
         </button>
       </div>
 
-      {/* Data Source Indicator */}
-      <div className="px-4 py-2 bg-slate-50 border-b border-slate-100">
-        <div className="flex items-center gap-2 text-xs">
-          <div className={`w-2 h-2 rounded-full ${isUsingRealData ? 'bg-green-500' : 'bg-amber-500'}`}></div>
-          <span className="text-slate-600 font-medium">
-            {isUsingRealData ? `Real World Cohort: ${filtersData.totalRecords}` : 'Fallback Data'}
-          </span>
+      {/* Data Source Indicator - Hidden in Benchmarking mode */}
+      {activeModule !== 'benchmarking' && (
+        <div className="px-4 py-2 bg-slate-50 border-b border-slate-100">
+          <div className="flex items-center gap-2 text-xs">
+            <div className={`w-2 h-2 rounded-full ${isUsingRealData ? 'bg-green-500' : 'bg-amber-500'}`}></div>
+            <span className="text-slate-600 font-medium">
+              {isUsingRealData ? `Real World Cohort: ${filtersData.totalRecords}` : 'Fallback Data'}
+            </span>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="p-4 space-y-6">
         {/* --- COMMON: Gradient Scheme Filter --- */}
@@ -981,7 +983,7 @@ const FilterSidebar = ({
             <div>
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 block">Comparators</label>
               <div className="space-y-2">
-                {['NexCAR19', 'SOC', 'Global CAR-T'].map((opt) => (
+                {['Global CAR-T'].map((opt) => (
                   <div
                     key={opt}
                     onClick={() => handleComparatorChange(opt)}
@@ -992,11 +994,9 @@ const FilterSidebar = ({
                       <span className={`text-sm font-bold ${filters.comparator === opt ? 'text-indigo-900' : 'text-slate-700'}`}>
                         {opt}
                       </span>
-                      {filters.comparator === opt && <Check className="w-4 h-4 text-indigo-600" />}
+                      {filters.comparator === opt}
                     </div>
-                    <div className="text-[10px] text-slate-500 mt-1">
-                      {opt === 'NexCAR19' && 'Current RWE Data (Reference)'}
-                      {opt === 'SOC' && 'Standard of Care Regimens'}
+                    <div className="text-xs text-slate-500 mt-1">
                       {opt === 'Global CAR-T' && 'International Approved Products'}
                     </div>
                   </div>
@@ -1004,23 +1004,6 @@ const FilterSidebar = ({
               </div>
             </div>
 
-            {/* Sub-Filter: SOC Regimen Selector */}
-            {filters.comparator === 'SOC' && (
-              <div className="animate-in fade-in slide-in-from-left-4 duration-300">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Select Regimen</label>
-                <div className="relative">
-                  <select
-                    value={filters.selectedRegimen}
-                    onChange={(e) => setFilters(prev => ({ ...prev, selectedRegimen: e.target.value }))}
-                    className="w-full bg-amber-50 border border-amber-200 text-amber-900 text-xs font-medium rounded-lg focus:ring-amber-500 focus:border-amber-500 p-2.5 appearance-none"
-                  >
-                    {currentRegimens.map(r => (
-                      <option key={r} value={r}>{r}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            )}
           </div>
         )}
       </div>
@@ -1308,7 +1291,7 @@ export default function RWEDashboard() {
     selectedInstitute: '',
     selectedRegion: '',
     selectedPhysician: '',
-    comparator: 'NexCAR19',
+    comparator: 'Global CAR-T',
     selectedRegimen: '',
     analysisType: 'PFS', // New filter for PFS/OS
     gradientScheme: 'clinical' // New filter for gradient color scheme
@@ -1613,16 +1596,14 @@ export default function RWEDashboard() {
     // 2. For benchmarking module, use mock data (can be extended later)
     const baseNexCAR = activeIndication === 'NHL' ? DATA_NHL_NEXCAR : DATA_BALL_NEXCAR;
 
-    if (filters.comparator === 'NexCAR19') return baseNexCAR;
-
-    // Generate mock benchmark data
-    const modifier = filters.comparator === 'SOC' ? 0.65 : 1.05;
+    // Since we only have Global CAR-T now, generate benchmark data
+    const modifier = 1.05;
     return generateBenchmarkData(baseNexCAR, modifier);
   }, [activeModule, activeIndication, filters.comparator, apiData, apiHealthy]);
 
-  // Comparison Reference (Always NexCAR19 for Benchmarking view when not viewing NexCAR19)
+  // Comparison Reference (Always base data for Benchmarking view)
   const comparisonReference = useMemo(() => {
-    if (activeModule === 'benchmarking' && filters.comparator !== 'NexCAR19') {
+    if (activeModule === 'benchmarking') {
       return activeIndication === 'NHL' ? DATA_NHL_NEXCAR : DATA_BALL_NEXCAR;
     }
     return null;
@@ -1712,10 +1693,13 @@ export default function RWEDashboard() {
               <Badge color={activeModule === 'benchmarking' ? "amber" : "indigo"}>
                 {activeModule === 'benchmarking' ? "Comparative Analysis" : "NexCAR19 RWE"}
               </Badge>
-              {filters.comparator !== 'NexCAR19' && activeModule === 'benchmarking' && (
-                <Badge color="rose">
-                  vs {filters.comparator === 'SOC' ? filters.selectedRegimen : 'Global CAR-T'}
-                </Badge>
+              {activeModule === 'benchmarking' && (
+                <>
+                  <p>vs</p>
+                  <Badge color="rose">
+                    Global CAR-T
+                  </Badge>
+                </>
               )}
             </div>
             <div className="bg-white border border-slate-200 p-1 rounded-full shadow-sm inline-flex">
@@ -1908,70 +1892,8 @@ export default function RWEDashboard() {
             ) : (
               // BENCHMARKING MODULE
               <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {filters.comparator === 'Global CAR-T' ? (
-                  // GLOBAL CAR-T BENCHMARK - Show Global2 component
-                  <Global2 indication={activeIndication} />
-                ) : (
-                  // NexCAR19 or SOC - Show current interface
-                  <>
-                    {/* Benchmarking Header */}
-                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="bg-indigo-100 rounded-full p-3">
-                          <Scale className="w-6 h-6 text-indigo-700" />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-bold text-slate-800">
-                            🏆 Benchmarking Analysis - {activeIndication}
-                          </h3>
-                          <p className="text-slate-600">
-                            Compare NexCAR19 performance against {filters.comparator === 'SOC' ? 'Standard of Care' : 'Global CAR-T'} treatments
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Current Comparison Info */}
-                      <div className="bg-slate-50 rounded-lg p-4">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <div className="text-center">
-                            <div className="text-2xl font-bold text-teal-600">NexCAR19</div>
-                            <div className="text-xs text-slate-500">Reference Treatment</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-lg text-slate-400">vs</div>
-                            <div className="text-xs text-slate-500">Comparison</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-2xl font-bold text-indigo-600">{filters.comparator}</div>
-                            <div className="text-xs text-slate-500">
-                              {filters.comparator === 'SOC' ? filters.selectedRegimen || 'Standard of Care' : 'Global CAR-T Products'}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Benchmarking Content Placeholder */}
-                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 mb-6">
-                      <div className="text-center py-12 text-slate-500">
-                        <Scale className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                        <p className="text-lg font-medium mb-2">
-                          {filters.comparator === 'NexCAR19' ? 'NexCAR19 Reference Data' : 'SOC Benchmarking Interface'}
-                        </p>
-                        <p className="text-sm">Comparative analysis charts and tables will be implemented here</p>
-                        <div className="mt-6 text-xs text-slate-400">
-                          <p>Features coming soon:</p>
-                          <ul className="mt-2 space-y-1">
-                            <li>• Side-by-side survival curve comparisons</li>
-                            <li>• Statistical significance testing</li>
-                            <li>• Efficacy delta calculations</li>
-                            <li>• Safety profile comparisons</li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
+                {/* GLOBAL CAR-T BENCHMARK - Show Global2 component */}
+                <Global2 indication={activeIndication} />
               </div>
             )}
 
