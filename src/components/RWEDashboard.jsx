@@ -11,7 +11,7 @@ import { testAPIConnection, testSurvivalAnalysis } from '../utils/apiTest';
 import { testOverallCohortAPI } from '../utils/testOverallCohort';
 import {
   Users, Layers, Box, TrendingUp, TrendingDown,
-  Filter, ChevronLeft, Calendar, Check, CircleDot, Circle, Scale,
+  Filter, ChevronLeft, Calendar, CircleDot, Circle, Scale,
   ChevronDown, Search, X, ChevronUp
 } from 'lucide-react';
 
@@ -797,7 +797,7 @@ const FilterSidebar = ({
   };
 
   // Safe access to regimens to prevent crash if indication mismatch
-  const currentRegimens = BENCHMARK_REGIMENS[activeIndication] || [];
+  // const currentRegimens = BENCHMARK_REGIMENS[activeIndication] || [];
 
   // Use real data from API or fallback to mock data
   const currentFiltersData = {
@@ -1599,7 +1599,7 @@ export default function RWEDashboard() {
     // Since we only have Global CAR-T now, generate benchmark data
     const modifier = 1.05;
     return generateBenchmarkData(baseNexCAR, modifier);
-  }, [activeModule, activeIndication, filters.comparator, apiData, apiHealthy]);
+  }, [activeModule, activeIndication, apiData, apiHealthy]);
 
   // Comparison Reference (Always base data for Benchmarking view)
   const comparisonReference = useMemo(() => {
@@ -1607,7 +1607,7 @@ export default function RWEDashboard() {
       return activeIndication === 'NHL' ? DATA_NHL_NEXCAR : DATA_BALL_NEXCAR;
     }
     return null;
-  }, [activeModule, activeIndication, filters.comparator]);
+  }, [activeModule, activeIndication]);
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
