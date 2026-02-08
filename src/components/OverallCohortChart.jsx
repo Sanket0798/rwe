@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LineChart as LineChartIcon, Info, Users, Activity, TrendingUp } from 'lucide-react';
+import { LineChart as LineChartIcon, Info, Activity, TrendingUp } from 'lucide-react';
 import { fetchSurvivalAnalysis } from '../services/survivalAnalysisService';
 
 // Generate mock data as fallback (moved outside component to avoid useEffect dependency warning)
@@ -284,14 +284,14 @@ const OverallCohortChart = ({
       <div className="space-y-4">
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
-            <div className="flex items-center gap-2 mb-2">
+          <div className="bg-blue-50 rounded-xl p-4 border border-blue-100 flex items-start justify-end flex-col">
+            {/* <div className="flex items-center gap-2 mb-2">
               <Users className="w-4 h-4 text-blue-600" />
               <div className="text-sm text-blue-600 font-medium">Total Patients</div>
-            </div>
-            <div className="text-2xl font-bold text-blue-900">{data.overall_km.n}</div>
-            <div className="text-xs text-blue-600 mt-1">
-              {data.persona_info?.isEmpty ? 'No patients in this subgroup' : 'Overall Cohort Size'}
+            </div> */}
+            <div className="text-4xl font-bold text-blue-900">{data.overall_km.n}</div>
+            <div className="text-base text-blue-600 mt-1">
+              {data.persona_info?.isEmpty ? 'No patients in this subgroup' : 'Total Patients'}
             </div>
           </div>
 
@@ -466,7 +466,7 @@ const OverallCohortChart = ({
                 fill="#374151"
                 transform={`rotate(-90, 20, ${height / 2})`}
               >
-                {analysisType} Percentage
+                {analysisType} %
               </text>
 
               {/* Chart title */}
@@ -555,12 +555,12 @@ const OverallCohortChart = ({
                 : 'Overall Cohort Kaplan-Meier Curve'
               }
             </h3>
-            <p className="text-sm text-slate-600 mt-2">
+            {/* <p className="text-sm text-slate-600 mt-2">
               {currentView === 'persona' && chartData?.persona_info
                 ? chartData.persona_info.description
                 : `Default view showing ${analysisType} analysis for ${indication} patients over ${timeline.replace(' Month', ' months')}`
               }
-            </p>
+            </p> */}
           </div>
         </div>
 
@@ -600,23 +600,23 @@ const OverallCohortChart = ({
               {chartData?.persona_info?.isEmpty ? (
                 <>
                   This patient subgroup (<strong>{chartData.persona_info.persona}</strong>) contains no patients in the current dataset.
-                  This could indicate that this specific combination of disease characteristics and risk factors is rare,
+                  {/* This could indicate that this specific combination of disease characteristics and risk factors is rare,
                   or that patients with these characteristics were not included in the current study population.
-                  Consider clicking on cards with patient data (non-zero values) to view meaningful survival curves.
+                  Consider clicking on cards with patient data (non-zero values) to view meaningful survival curves. */}
                 </>
               ) : currentView === 'persona' && chartData?.persona_info ? (
                 <>
                   This Kaplan-Meier curve represents the {analysisType.toLowerCase()} probability for the specific patient subgroup: <strong>{chartData.persona_info.persona}</strong>.
-                  The step-function shows the probability of remaining progression-free at each time point for this targeted population.
+                  {/* The step-function shows the probability of remaining progression-free at each time point for this targeted population.
                   This analysis includes {chartData?.overall_km?.n || 'available'} patients with these specific characteristics,
-                  providing insights into treatment efficacy for this particular risk profile.
+                  providing insights into treatment efficacy for this particular risk profile. */}
                 </>
               ) : (
                 <>
                   This Kaplan-Meier curve represents the overall {analysisType.toLowerCase()} probability for the entire {indication} patient cohort.
-                  The step-function shows the probability of remaining progression-free at each time point.
+                  {/* The step-function shows the probability of remaining progression-free at each time point.
                   This analysis includes all {chartData?.overall_km?.n || 'available'} patients from the global dataset,
-                  providing a comprehensive view of treatment efficacy across all risk categories and disease characteristics.
+                  providing a comprehensive view of treatment efficacy across all risk categories and disease characteristics. */}
                 </>
               )}
             </div>

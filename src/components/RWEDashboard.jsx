@@ -40,14 +40,11 @@ const BENCHMARK_REGIMENS = {
 const GRADIENT_CONFIG = {
   // Define gradient stops for smooth color transitions
   clinical: {
-    // Colors from dark blue (0%) to dark red (100%) through cyan, green, yellow, orange
+    // Simple 2-color gradient: amber/yellow (0-25%) to green (26-100%)
     stops: [
-      { percent: 0, color: [0, 32, 96] },      // Dark blue #002060
-      { percent: 20, color: [0, 150, 200] },   // Cyan #0096c8
-      { percent: 40, color: [0, 200, 100] },   // Green #00c864
-      { percent: 60, color: [150, 220, 0] },   // Yellow-green #96dc00
-      { percent: 80, color: [255, 165, 0] },   // Orange #ffa500
-      { percent: 100, color: [139, 0, 0] }     // Dark red #8b0000
+      { percent: 0, color: [255, 140, 0] },    // Dark orange/amber #FF8C00
+      { percent: 25, color: [255, 200, 0] },   // Yellow-orange #FFC800 (transition point)
+      { percent: 100, color: [34, 139, 34] }   // Forest green #228B22
     ]
   },
   viridis: {
@@ -115,7 +112,7 @@ const getContinuousGradientColor = (percentage, scheme = 'clinical') => {
 const getContrastTextColor = (percentage) => {
   // For lower percentages (darker colors), use white text
   // For higher percentages (brighter colors), use dark text
-  return percentage < 50 ? 'text-white' : 'text-slate-900';
+  return percentage < 50 ? 'text-slate-900' : 'text-white';
 };
 
 // --- Overall Cohort Calculation Functions ---
@@ -316,7 +313,7 @@ const SearchableInstituteDropdown = ({
         <div className="flex items-center justify-between">
           {selectedInstitute ? (
             <div className="flex items-center gap-2 flex-1">
-              <span className="truncate">{selectedInstitute}</span>
+              <span className="text-ellipsis">{selectedInstitute}</span>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -324,7 +321,7 @@ const SearchableInstituteDropdown = ({
                 }}
                 className="text-slate-400 hover:text-slate-600 flex-shrink-0"
               >
-                <X className="w-3 h-3" />
+                <X className="w-4 h-4" />
               </button>
             </div>
           ) : (
@@ -610,7 +607,6 @@ const SearchablePhysicianDropdown = ({
 
 // --- Component: Heat Map Legend ---
 const HeatMapLegend = ({ scheme = 'clinical' }) => {
-  // Generate CSS gradient string for the legend bar
   const generateGradientCSS = (scheme) => {
     const stops = GRADIENT_CONFIG[scheme].stops;
     const gradientStops = stops.map(stop =>
@@ -643,38 +639,7 @@ const HeatMapLegend = ({ scheme = 'clinical' }) => {
             Every percentage gets a unique color
           </div>
         </div>
-
-        {/* Sample Colors */}
-        {/* <div className="flex flex-col gap-1">
-          {[10, 30, 50, 70, 90].map(percent => (
-            <div key={percent} className="flex items-center gap-2 text-xs">
-              <div
-                className="w-4 h-4 rounded border border-slate-200"
-                style={{ backgroundColor: getContinuousGradientColor(percent, scheme) }}
-              />
-              <span className="text-slate-600 font-mono">{percent}%</span>
-            </div>
-          ))}
-        </div> */}
       </div>
-
-      {/* Scheme Selector */}
-      {/* <div className="mt-4 pt-3 border-t border-slate-100">
-        <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-          Color Schemes
-        </div>
-        <div className="flex gap-2">
-          {Object.keys(GRADIENT_CONFIG).map(schemeName => (
-            <div key={schemeName} className="text-center">
-              <div
-                className="w-16 h-4 rounded border border-slate-200 mb-1"
-                style={{ background: generateGradientCSS(schemeName) }}
-              />
-              <div className="text-xs text-slate-600 capitalize">{schemeName}</div>
-            </div>
-          ))}
-        </div>
-      </div> */}
     </div>
   );
 };
@@ -1774,7 +1739,7 @@ export default function RWEDashboard() {
 
 
           {/* Header Area */}
-          <div className="flex flex-col gap-6 mb-8 border-b border-slate-200 pb-6">
+          <div className="flex flex-col gap-6 mb-6 border-b border-slate-200 pb-6">
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-6">
               {/* Controls - Only for Patient Personas */}
               {activeModule === 'personas' && (
@@ -1908,9 +1873,10 @@ export default function RWEDashboard() {
           )} */}
 
           {/* Heat Map Legend - Only for Patient Personas */}
-          {activeModule === 'personas' && (
+          {/* Disabled for now as per client request */}
+          {/* {activeModule === 'personas' && (
             <HeatMapLegend scheme={filters.gradientScheme} />
-          )}
+          )} */}
 
           {/* Dynamic Content - Module-based Rendering */}
           <div className="min-h-[600px]">
