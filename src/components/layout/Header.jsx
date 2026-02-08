@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Activity, LogOut, User } from 'lucide-react';
+import { LogOut, User } from 'lucide-react';
 
 const Header = ({ user, onLogout }) => {
   const navigate = useNavigate();
@@ -20,7 +20,7 @@ const Header = ({ user, onLogout }) => {
               {/* <p className="text-sm text-gray-600">NexCAR19 Clinical Analytics Platform</p> */}
             </div>
           </div>
-          
+
           {user && (
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2 text-sm text-gray-700">

@@ -10,7 +10,7 @@ import { useFiltersData } from '../hooks/useFiltersData';
 import { testAPIConnection, testSurvivalAnalysis } from '../utils/apiTest';
 import { testOverallCohortAPI } from '../utils/testOverallCohort';
 import {
-  Users, Activity, Layers, Box, TrendingUp, TrendingDown,
+  Users , Layers, Box, TrendingUp, TrendingDown,
   Filter, ChevronLeft, Calendar, Check, CircleDot, Circle, Scale,
   ChevronDown, Search, X, ChevronUp
 } from 'lucide-react';
@@ -722,83 +722,83 @@ const BenchmarkingSummary = ({ filters, activeIndication, currentDataset }) => {
   );
 };
 
-// --- Component: Active Filters Summary Bar ---
-const ActiveFiltersSummary = ({ filters, activeModule, activeIndication, totalPatients, apiData }) => {
-  const getActiveFiltersText = () => {
-    const filterTexts = [];
+// // --- Component: Active Filters Summary Bar ---
+// const ActiveFiltersSummary = ({ filters, activeModule, totalPatients, apiData }) => {
+//   const getActiveFiltersText = () => {
+//     const filterTexts = [];
 
-    // Define display names for levels
-    const levelNames = {
-      'global': 'Overall Cohort',
-      'institute': 'Hospitals',
-      'region': 'Geographic Regions',
-      'physician': 'Physicians'
-    };
+//     // Define display names for levels
+//     const levelNames = {
+//       'global': 'Overall Cohort',
+//       'institute': 'Hospitals',
+//       'region': 'Geographic Regions',
+//       'physician': 'Physicians'
+//     };
 
-    if (filters.activeLevel !== 'global') {
-      filterTexts.push(`Level: ${levelNames[filters.activeLevel]}`);
+//     if (filters.activeLevel !== 'global') {
+//       filterTexts.push(`Level: ${levelNames[filters.activeLevel]}`);
 
-      if (filters.activeLevel === 'region' && filters.selectedRegion) {
-        filterTexts.push(`Region: ${filters.selectedRegion}`);
-      }
-      if (filters.activeLevel === 'institute' && filters.selectedInstitute) {
-        filterTexts.push(`Hospital: ${filters.selectedInstitute}`);
-      }
-      if (filters.activeLevel === 'physician' && filters.selectedPhysician) {
-        filterTexts.push(`Physician: ${filters.selectedPhysician}`);
-      }
-    }
+//       if (filters.activeLevel === 'region' && filters.selectedRegion) {
+//         filterTexts.push(`Region: ${filters.selectedRegion}`);
+//       }
+//       if (filters.activeLevel === 'institute' && filters.selectedInstitute) {
+//         filterTexts.push(`Hospital: ${filters.selectedInstitute}`);
+//       }
+//       if (filters.activeLevel === 'physician' && filters.selectedPhysician) {
+//         filterTexts.push(`Physician: ${filters.selectedPhysician}`);
+//       }
+//     }
 
-    if (activeModule === 'benchmarking' && filters.comparator !== 'NexCAR19') {
-      filterTexts.push(`Comparator: ${filters.comparator}`);
-      if (filters.comparator === 'SOC' && filters.selectedRegimen) {
-        filterTexts.push(`Regimen: ${filters.selectedRegimen}`);
-      }
-    }
+//     if (activeModule === 'benchmarking' && filters.comparator !== 'NexCAR19') {
+//       filterTexts.push(`Comparator: ${filters.comparator}`);
+//       if (filters.comparator === 'SOC' && filters.selectedRegimen) {
+//         filterTexts.push(`Regimen: ${filters.selectedRegimen}`);
+//       }
+//     }
 
-    return filterTexts.length > 0 ? filterTexts : ['All Patients (Overall Cohort)'];
-  };
+//     return filterTexts.length > 0 ? filterTexts : ['All Patients (Overall Cohort)'];
+//   };
 
-  // Get the actual filtered patient count from API data if available
-  // IMPORTANT: Always prioritize apiData when available, as it contains the filtered results
-  const actualPatientCount = apiData ? apiData.totalPatients : totalPatients;
-  const isFiltered = filters.activeLevel !== 'global' ||
-    (activeModule === 'benchmarking' && filters.comparator !== 'NexCAR19');
+//   // Get the actual filtered patient count from API data if available
+//   // IMPORTANT: Always prioritize apiData when available, as it contains the filtered results
+//   const actualPatientCount = apiData ? apiData.totalPatients : totalPatients;
+//   const isFiltered = filters.activeLevel !== 'global' ||
+//     (activeModule === 'benchmarking' && filters.comparator !== 'NexCAR19');
 
-  // Debug logging for patient count
-  React.useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔍 ActiveFiltersSummary Patient Count Debug:', {
-        'apiData?.totalPatients': apiData?.totalPatients,
-        'totalPatients': totalPatients,
-        'actualPatientCount': actualPatientCount,
-        'isFiltered': isFiltered,
-        'activeLevel': filters.activeLevel,
-        'selectedPhysician': filters.selectedPhysician,
-        'selectedRegion': filters.selectedRegion,
-        'apiData exists': !!apiData
-      });
-    }
-  }, [apiData, totalPatients, actualPatientCount, isFiltered, filters.activeLevel, filters.selectedPhysician, filters.selectedRegion]);
+//   // Debug logging for patient count
+//   React.useEffect(() => {
+//     if (process.env.NODE_ENV === 'development') {
+//       console.log('🔍 ActiveFiltersSummary Patient Count Debug:', {
+//         'apiData?.totalPatients': apiData?.totalPatients,
+//         'totalPatients': totalPatients,
+//         'actualPatientCount': actualPatientCount,
+//         'isFiltered': isFiltered,
+//         'activeLevel': filters.activeLevel,
+//         'selectedPhysician': filters.selectedPhysician,
+//         'selectedRegion': filters.selectedRegion,
+//         'apiData exists': !!apiData
+//       });
+//     }
+//   }, [apiData, totalPatients, actualPatientCount, isFiltered, filters.activeLevel, filters.selectedPhysician, filters.selectedRegion]);
 
-  return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-6">
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        {/* Active Filters */}
-        <div className="flex-1">
-          <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Active Filters</div>
-          <div className="flex flex-wrap gap-2">
-            {getActiveFiltersText().map((filter, index) => (
-              <Badge key={index} color={isFiltered ? "amber" : "slate"}>
-                {filter}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+//   return (
+//     <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-6">
+//       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+//         {/* Active Filters */}
+//         <div className="flex-1">
+//           <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Active Filters</div>
+//           <div className="flex flex-wrap gap-2">
+//             {getActiveFiltersText().map((filter, index) => (
+//               <Badge key={index} color={isFiltered ? "amber" : "slate"}>
+//                 {filter}
+//               </Badge>
+//             ))}
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
 
 // --- Component: Filter Sidebar ---
 const FilterSidebar = ({
