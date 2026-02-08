@@ -10,7 +10,7 @@ import { useFiltersData } from '../hooks/useFiltersData';
 import { testAPIConnection, testSurvivalAnalysis } from '../utils/apiTest';
 import { testOverallCohortAPI } from '../utils/testOverallCohort';
 import {
-  Users, Activity, LayoutGrid, Layers, Box, TrendingUp, TrendingDown,
+  Users, Activity, Layers, Box, TrendingUp, TrendingDown,
   Filter, ChevronLeft, Calendar, Check, CircleDot, Circle, Scale,
   ChevronDown, Search, X, ChevronUp
 } from 'lucide-react';
@@ -182,7 +182,7 @@ const DATA_NHL_NEXCAR = {
       id: "refractory",
       title: "Primary Refractory",
       totalN: 47,
-      desc: "No response to initial therapy",
+      desc: "No response to frontline treatment",
       values: {
         nb_low: { pfs: 48, os: 52, n: 30 },
         nb_high: { pfs: 17, os: 22, n: 5 },
@@ -191,27 +191,27 @@ const DATA_NHL_NEXCAR = {
       }
     },
     {
-      id: "late_relapse",
-      title: "Late Relapse (>1 yr)",
-      totalN: 21,
-      desc: "Relapse after 12m remission",
-      values: {
-        nb_low: { pfs: 86, os: 88, n: 28 },
-        nb_high: { pfs: 100, os: 100, n: 5 },
-        b_low: { pfs: 60, os: 63, n: 5 },
-        b_high: { pfs: 33, os: 40, n: 5 }
-      }
-    },
-    {
       id: "early_relapse",
-      title: "Early Relapse (<1 yr)",
+      title: "Early Relapse",
       totalN: 54,
-      desc: "Relapse within 12m therapy",
+      desc: "Relapse within 12M from last line of therapy",
       values: {
         nb_low: { pfs: 57, os: 61, n: 36 },
         nb_high: { pfs: 25, os: 30, n: 6 },
         b_low: { pfs: 33, os: 38, n: 6 },
         b_high: { pfs: 40, os: 45, n: 5 }
+      }
+    },
+    {
+      id: "late_relapse",
+      title: "Late Relapse",
+      totalN: 21,
+      desc: "Relapse after 12M from last line of therapy",
+      values: {
+        nb_low: { pfs: 86, os: 88, n: 28 },
+        nb_high: { pfs: 100, os: 100, n: 5 },
+        b_low: { pfs: 60, os: 63, n: 5 },
+        b_high: { pfs: 33, os: 40, n: 5 }
       }
     }
   ]
@@ -258,7 +258,7 @@ const Badge = ({ children, color = "slate" }) => {
     indigo: "bg-indigo-50 text-indigo-700"
   };
   return (
-    <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${colors[color] || colors.slate}`}>
+    <span className={`px-2.5 py-1 rounded-full text-sm mt-2 font-semibold ${colors[color] || colors.slate}`}>
       {children}
     </span>
   );
@@ -727,14 +727,22 @@ const ActiveFiltersSummary = ({ filters, activeModule, activeIndication, totalPa
   const getActiveFiltersText = () => {
     const filterTexts = [];
 
-    if (filters.activeLevel !== 'global') {
-      filterTexts.push(`Level: ${filters.activeLevel}`);
+    // Define display names for levels
+    const levelNames = {
+      'global': 'Overall Cohort',
+      'institute': 'Hospitals',
+      'region': 'Geographic Regions',
+      'physician': 'Physicians'
+    };
 
-      if (filters.activeLevel === 'institute' && filters.selectedInstitute) {
-        filterTexts.push(`Institute: ${filters.selectedInstitute}`);
-      }
+    if (filters.activeLevel !== 'global') {
+      filterTexts.push(`Level: ${levelNames[filters.activeLevel]}`);
+
       if (filters.activeLevel === 'region' && filters.selectedRegion) {
         filterTexts.push(`Region: ${filters.selectedRegion}`);
+      }
+      if (filters.activeLevel === 'institute' && filters.selectedInstitute) {
+        filterTexts.push(`Hospital: ${filters.selectedInstitute}`);
       }
       if (filters.activeLevel === 'physician' && filters.selectedPhysician) {
         filterTexts.push(`Physician: ${filters.selectedPhysician}`);
@@ -748,7 +756,7 @@ const ActiveFiltersSummary = ({ filters, activeModule, activeIndication, totalPa
       }
     }
 
-    return filterTexts.length > 0 ? filterTexts : ['All Patients (Global View)'];
+    return filterTexts.length > 0 ? filterTexts : ['All Patients (Overall Cohort)'];
   };
 
   // Get the actual filtered patient count from API data if available
@@ -776,28 +784,6 @@ const ActiveFiltersSummary = ({ filters, activeModule, activeIndication, totalPa
   return (
     <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-6">
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        {/* Overall Cohort Size */}
-        <div className="flex items-center gap-4">
-          <div className={`rounded-lg p-3 flex items-center gap-3 ${isFiltered ? 'bg-amber-50' : 'bg-teal-50'}`}>
-            <Users className={`w-5 h-5 ${isFiltered ? 'text-amber-600' : 'text-teal-600'}`} />
-            <div>
-              <div className={`text-2xl font-bold ${isFiltered ? 'text-amber-900' : 'text-teal-900'}`}>
-                {actualPatientCount}
-              </div>
-              <div className={`text-xs font-medium ${isFiltered ? 'text-amber-600' : 'text-teal-600'}`}>
-                {isFiltered ? 'Filtered Patients' : 'Total Patients'}
-              </div>
-            </div>
-          </div>
-          <div className="bg-indigo-50 rounded-lg p-3 flex items-center gap-3">
-            <Activity className="w-5 h-5 text-indigo-600" />
-            <div>
-              <div className="text-lg font-bold text-indigo-900">{filters.analysisType}</div>
-              <div className="text-xs text-indigo-600 font-medium">{filters.timeline}</div>
-            </div>
-          </div>
-        </div>
-
         {/* Active Filters */}
         <div className="flex-1">
           <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Active Filters</div>
@@ -886,7 +872,7 @@ const FilterSidebar = ({
         <div className="flex items-center gap-2 text-xs">
           <div className={`w-2 h-2 rounded-full ${isUsingRealData ? 'bg-green-500' : 'bg-amber-500'}`}></div>
           <span className="text-slate-600 font-medium">
-            {isUsingRealData ? `Real Data (${filtersData.totalRecords} records)` : 'Fallback Data'}
+            {isUsingRealData ? `Real World Cohort: ${filtersData.totalRecords}` : 'Fallback Data'}
           </span>
         </div>
       </div>
@@ -932,7 +918,7 @@ const FilterSidebar = ({
         {activeModule === 'personas' && (
           <div>
             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1">
-              <Calendar className="w-3 h-3" /> Timeline
+              <Calendar className="w-3 h-3" /> Elapsed Time
             </label>
             <div className="relative">
               <select
@@ -957,61 +943,71 @@ const FilterSidebar = ({
         {activeModule === 'personas' ? (
           /* PERSONAS FILTERS */
           <div>
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 block">Data Level</label>
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 block">Analysis Level</label>
             <div className="space-y-3">
-              {['global', 'institute', 'region', 'physician'].map(lvl => (
-                <div key={lvl}>
-                  <div
-                    onClick={() => setLevel(lvl)}
-                    className={`flex items-center p-2 rounded-lg cursor-pointer transition-colors ${filters.activeLevel === lvl ? 'bg-teal-50 border border-teal-100' : 'hover:bg-slate-50 border border-transparent'
-                      }`}
-                  >
-                    {filters.activeLevel === lvl ? <CircleDot className="w-4 h-4 text-teal-600" /> : <Circle className="w-4 h-4 text-slate-300" />}
-                    <span className={`ml-2 text-sm font-medium ${filters.activeLevel === lvl ? 'text-teal-900' : 'text-slate-700'
-                      } flex items-center gap-2 capitalize`}>
-                      {lvl === 'global' ? 'Global (All)' : `${lvl} Level`}
-                    </span>
-                  </div>
-                  {/* Sub-menus */}
-                  {filters.activeLevel === lvl && lvl !== 'global' && (
-                    <div className="ml-6 mt-2 pl-2 border-l-2 border-teal-100 space-y-1.5 animate-in slide-in-from-left-2 duration-200">
-                      {lvl === 'institute' && (
-                        <SearchableInstituteDropdown
-                          institutes={currentFiltersData.institutes}
-                          selectedInstitute={filters.selectedInstitute}
-                          onSelect={(institute) => setFilters(prev => ({ ...prev, selectedInstitute: institute }))}
-                          placeholder="Search institutes..."
-                        />
-                      )}
-                      {lvl === 'region' && (
-                        <div className="relative">
-                          <select
-                            value={filters.selectedRegion || ''}
-                            onChange={(e) => setFilters(prev => ({ ...prev, selectedRegion: e.target.value }))}
-                            className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-lg focus:ring-teal-500 focus:border-teal-500 p-2 appearance-none"
-                          >
-                            <option value="">Select a region...</option>
-                            {currentFiltersData.regions.map(r => (
-                              <option key={r} value={r}>{r}</option>
-                            ))}
-                          </select>
-                          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
-                            <ChevronDown className="h-3 w-3" />
-                          </div>
-                        </div>
-                      )}
-                      {lvl === 'physician' && (
-                        <SearchablePhysicianDropdown
-                          physicians={currentFiltersData.physicians}
-                          selectedPhysician={filters.selectedPhysician}
-                          onSelect={(physician) => setFilters(prev => ({ ...prev, selectedPhysician: physician }))}
-                          placeholder="Search physicians..."
-                        />
-                      )}
+              {['global', 'institute', 'region', 'physician'].map(lvl => {
+                // Define display names for each level
+                const levelNames = {
+                  'global': 'Overall Cohort',
+                  'institute': 'Hospitals',
+                  'region': 'Geographic Regions',
+                  'physician': 'Physicians'
+                };
+
+                return (
+                  <div key={lvl}>
+                    <div
+                      onClick={() => setLevel(lvl)}
+                      className={`flex items-center p-2 rounded-lg cursor-pointer transition-colors ${filters.activeLevel === lvl ? 'bg-teal-50 border border-teal-100' : 'hover:bg-slate-50 border border-transparent'
+                        }`}
+                    >
+                      {filters.activeLevel === lvl ? <CircleDot className="w-4 h-4 text-teal-600" /> : <Circle className="w-4 h-4 text-slate-300" />}
+                      <span className={`ml-2 text-sm font-medium ${filters.activeLevel === lvl ? 'text-teal-900' : 'text-slate-700'
+                        } flex items-center gap-2`}>
+                        {levelNames[lvl]}
+                      </span>
                     </div>
-                  )}
-                </div>
-              ))}
+                    {/* Sub-menus */}
+                    {filters.activeLevel === lvl && lvl !== 'global' && (
+                      <div className="ml-6 mt-2 pl-2 border-l-2 border-teal-100 space-y-1.5 animate-in slide-in-from-left-2 duration-200">
+                        {lvl === 'region' && (
+                          <div className="relative">
+                            <select
+                              value={filters.selectedRegion || ''}
+                              onChange={(e) => setFilters(prev => ({ ...prev, selectedRegion: e.target.value }))}
+                              className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-lg focus:ring-teal-500 focus:border-teal-500 p-2 appearance-none"
+                            >
+                              <option value="">Select a region...</option>
+                              {currentFiltersData.regions.map(r => (
+                                <option key={r} value={r}>{r}</option>
+                              ))}
+                            </select>
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+                              <ChevronDown className="h-3 w-3" />
+                            </div>
+                          </div>
+                        )}
+                        {lvl === 'institute' && (
+                          <SearchableInstituteDropdown
+                            institutes={currentFiltersData.institutes}
+                            selectedInstitute={filters.selectedInstitute}
+                            onSelect={(institute) => setFilters(prev => ({ ...prev, selectedInstitute: institute }))}
+                            placeholder="Search hospitals..."
+                          />
+                        )}
+                        {lvl === 'physician' && (
+                          <SearchablePhysicianDropdown
+                            physicians={currentFiltersData.physicians}
+                            selectedPhysician={filters.selectedPhysician}
+                            onSelect={(physician) => setFilters(prev => ({ ...prev, selectedPhysician: physician }))}
+                            placeholder="Search physicians..."
+                          />
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         ) : (
@@ -1068,242 +1064,264 @@ const FilterSidebar = ({
 };
 
 // --- Module: Patient Personas NHL View ---
-const PersonasNHLView = ({ timeline, dataset, comparisonDataset, onCardClick, analysisType, gradientScheme, selectedPersona = null, onResetToOverall = null, activeIndication = 'NHL' }) => (
-  <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-    {/* Overall Cohort Card */}
-    {/* <OverallCohortCard
-      dataset={dataset}
-      analysisType={analysisType}
-      gradientScheme={gradientScheme}
-      onCardClick={onCardClick}
-      indication="NHL"
-    /> */}
+const PersonasNHLView = ({ timeline, dataset, comparisonDataset, onCardClick, analysisType, gradientScheme, selectedPersona = null, onResetToOverall = null, activeIndication = 'NHL' }) => {
+  // Calculate patient count for the card
+  const totalPatients = dataset.totalPatients;
 
-    {/* Individual Subgroups */}
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 lg:p-6 mb-6">
-      <div className="mb-4">
-        <h3 className="text-lg font-bold text-slate-800 mb-2">Individual Patient Subgroups</h3>
-        <p className="text-sm text-slate-600">Detailed breakdown by risk category and disease characteristics</p>
-      </div>
+  return (
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* Overall Cohort Card */}
+      {/* <OverallCohortCard
+        dataset={dataset}
+        analysisType={analysisType}
+        gradientScheme={gradientScheme}
+        onCardClick={onCardClick}
+        indication="NHL"
+      /> */}
 
-      <div className="w-full">
-        {/* Header Grid - Full Width */}
-        <div className="grid grid-cols-10 gap-2 lg:gap-4 mb-2">
-          <div className="col-span-2"></div>
-          <div className="col-span-4 bg-teal-50 rounded-t-lg border-t border-x border-teal-100 p-2 lg:p-3 text-center relative group">
-            <div className="absolute top-0 left-0 w-full h-1 bg-teal-500 rounded-t-lg"></div>
-            <div className="flex justify-center items-center gap-1 lg:gap-2 text-teal-800 font-bold uppercase tracking-wider text-xs lg:text-sm">
-              <Layers className="w-3 h-3 lg:w-4 lg:h-4" /> Non-Bulky
-            </div>
-          </div>
-          <div className="col-span-4 bg-indigo-50 rounded-t-lg border-t border-x border-indigo-100 p-2 lg:p-3 text-center relative group">
-            <div className="absolute top-0 left-0 w-full h-1 bg-indigo-500 rounded-t-lg"></div>
-            <div className="flex justify-center items-center gap-1 lg:gap-2 text-indigo-800 font-bold uppercase tracking-wider text-xs lg:text-sm">
-              <Box className="w-3 h-3 lg:w-4 lg:h-4" /> Bulky
-            </div>
-          </div>
+      {/* Individual Subgroups */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 lg:p-6 mb-6">
+        <div className="mb-4">
+          <h3 className="text-lg font-bold text-slate-800 mb-2">Individual Patient Subgroups</h3>
+          <p className="text-sm text-slate-600">Detailed breakdown by risk category and disease characteristics</p>
         </div>
 
-        <div className="grid grid-cols-10 gap-2 lg:gap-4 mb-4 lg:mb-6">
-          <div className="col-span-2 flex items-end pb-2 pl-1 lg:pl-2">
-            <span className="text-[10px] lg:text-xs font-bold text-slate-400 uppercase tracking-widest">Cohort</span>
-          </div>
-          {dataset.columns.map((col, index) => (
-            <div key={col.id} className="col-span-2 text-center border-b border-slate-100 pb-2">
-              <div className="text-xs lg:text-sm font-bold text-slate-700">{col.label}</div>
-              <div className="text-[8px] lg:text-[10px] text-slate-400 font-mono bg-slate-100 inline-block px-1 lg:px-1.5 rounded mt-1">
-                Score {col.range}
+        <div className="w-full">
+          {/* Header Grid - Full Width */}
+          <div className="grid grid-cols-10 gap-2 lg:gap-4 mb-2">
+            <div className="col-span-2">
+              <div className="bg-teal-50 rounded-lg p-3 flex items-center justify-center gap-2">
+                <Users className="w-4 h-4 text-teal-900" /><span className='text-2xl font-bold text-teal-900'>{totalPatients}</span> <span className='text-sm font-medium text-teal-600'>Patients</span>
               </div>
             </div>
-          ))}
-        </div>
-
-        {/* Rows - Full Width Grid */}
-        <div className="space-y-3 lg:space-y-4">
-          {dataset.rows.map((row, rIdx) => (
-            <div key={row.id} className="grid grid-cols-10 gap-2 lg:gap-4 items-stretch group hover:bg-slate-50/50 rounded-xl transition-colors p-1 lg:p-2 -mx-1 lg:-mx-2">
-              <div className="col-span-2 flex flex-col justify-center pr-2 lg:pr-4 border-r border-slate-100 relative">
-                <h3 className="font-bold text-slate-800 text-sm lg:text-lg leading-tight">{row.title}</h3>
-                <p className="text-[10px] lg:text-xs text-slate-500 mt-1 line-clamp-2">{row.desc}</p>
-                <div className="text-xs text-slate-400 mt-2 font-mono">n = {row.totalN}</div>
+            <div className="col-span-4 flex items-center justify-center bg-teal-50 rounded-t-lg border-t border-x border-teal-100 p-2 lg:p-3 text-center relative group">
+              <div className="absolute top-0 left-0 w-full h-1 bg-teal-500 rounded-t-lg"></div>
+              <div className="flex justify-center items-center gap-1 lg:gap-2 text-teal-800 font-bold uppercase tracking-wider text-xs lg:text-sm">
+                <Layers className="w-3 h-3 lg:w-4 lg:h-4" /> Non-Bulky
               </div>
-              {dataset.columns.map((col, colIndex) => {
-                const currentValue = analysisType.toLowerCase() === 'pfs' ? row.values[col.id].pfs : row.values[col.id].os;
-                const compData = comparisonDataset ? comparisonDataset.rows[rIdx].values[col.id] : null;
-                const cardColor = getContinuousGradientColor(currentValue, gradientScheme);
-                const textColor = getContrastTextColor(currentValue);
+            </div>
+            <div className="col-span-4 flex items-center justify-center bg-indigo-50 rounded-t-lg border-t border-x border-indigo-100 p-2 lg:p-3 text-center relative group">
+              <div className="absolute top-0 left-0 w-full h-1 bg-indigo-500 rounded-t-lg"></div>
+              <div className="flex justify-center items-center gap-1 lg:gap-2 text-indigo-800 font-bold uppercase tracking-wider text-xs lg:text-sm">
+                <Box className="w-3 h-3 lg:w-4 lg:h-4" /> Bulky
+              </div>
+            </div>
+          </div>
 
-                return (
-                  <div key={`${row.id}-${col.id}`} className="col-span-2">
-                    <div
-                      className={`h-20 lg:h-28 rounded-lg p-2 lg:p-3 flex flex-col justify-between transition-all hover:scale-[1.02] hover:shadow-lg cursor-pointer ${textColor} relative overflow-hidden border border-white/20`}
-                      style={{ backgroundColor: cardColor }}
-                      onClick={() => onCardClick && onCardClick(row.values[col.id], row, col)}
-                    >
-                      {/* Subtle gradient overlay for depth */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-black/5 pointer-events-none" />
+          <div className="grid grid-cols-10 gap-2 lg:gap-4 mb-4 lg:mb-6">
+            <div className="col-span-2 flex items-end pb-2 pl-1 lg:pl-2">
+              <span className="text-[10px] lg:text-xs font-bold text-slate-400 uppercase tracking-widest"></span>
+            </div>
+            {dataset.columns.map((col, index) => (
+              <div key={col.id} className="col-span-2 text-center border-b border-slate-100 pb-2">
+                <div className="text-xs lg:text-sm font-bold text-slate-700">{col.label}</div>
+                <div className="text-[8px] lg:text-[10px] text-slate-400 font-mono bg-slate-100 inline-block px-1 lg:px-1.5 rounded mt-1">
+                  IPI {col.range}
+                </div>
+              </div>
+            ))}
+          </div>
 
-                      <div className="flex justify-end items-end z-10">
-                        {!compData && (
-                          <div className="flex items-center gap-1 opacity-90 bg-black/15 px-1 lg:px-1.5 py-0.5 rounded text-[10px] lg:text-[12px] backdrop-blur-sm">
-                            <Users className="w-2 h-2 lg:w-3 lg:h-3" />
-                            <span className="font-mono">{row.values[col.id].n}</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex flex-col items-start z-10">
-                        <div className="text-xl lg:text-4xl font-bold tracking-tight leading-none drop-shadow-sm">
-                          {currentValue}<span className="text-sm lg:text-lg font-medium opacity-80">%</span>
+          {/* Rows - Full Width Grid */}
+          <div className="space-y-3 lg:space-y-4">
+            {dataset.rows.map((row, rIdx) => (
+              <div key={row.id} className="grid grid-cols-10 gap-2 lg:gap-4 items-stretch group hover:bg-slate-50/50 rounded-xl transition-colors p-1 lg:p-2 -mx-1 lg:-mx-2">
+                <div className="col-span-2 flex flex-col justify-center pr-2 lg:pr-4 border-r border-slate-100 relative">
+                  <h3 className="font-bold text-slate-800 text-sm lg:text-[15px] leading-tight">{row.title}</h3>
+                  <p className="text-[10px] lg:text-xs text-slate-500 mt-1 line-clamp-2">{row.desc}</p>
+                  <div className="text-xs text-slate-400 mt-2 font-mono flex items-center gap-1">
+                    <Users className="w-3 h-3" />n = {row.totalN}
+                  </div>
+                </div>
+                {dataset.columns.map((col, colIndex) => {
+                  const currentValue = analysisType.toLowerCase() === 'pfs' ? row.values[col.id].pfs : row.values[col.id].os;
+                  const compData = comparisonDataset ? comparisonDataset.rows[rIdx].values[col.id] : null;
+                  const cardColor = getContinuousGradientColor(currentValue, gradientScheme);
+                  const textColor = getContrastTextColor(currentValue);
+
+                  return (
+                    <div key={`${row.id}-${col.id}`} className="col-span-2">
+                      <div
+                        className={`h-20 lg:h-28 rounded-lg p-2 lg:p-3 flex flex-col justify-between transition-all hover:scale-[1.02] hover:shadow-lg cursor-pointer ${textColor} relative overflow-hidden border border-white/20`}
+                        style={{ backgroundColor: cardColor }}
+                        onClick={() => onCardClick && onCardClick(row.values[col.id], row, col)}
+                      >
+                        {/* Subtle gradient overlay for depth */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-black/5 pointer-events-none" />
+
+                        <div className="flex justify-end items-end z-10">
+                          {!compData && (
+                            <div className="flex items-center gap-1 opacity-90 bg-black/15 px-1 lg:px-1.5 py-0.5 rounded text-[10px] lg:text-[12px] backdrop-blur-sm">
+                              <Users className="w-2 h-2 lg:w-3 lg:h-3" />
+                              <span className="font-mono">{row.values[col.id].n}</span>
+                            </div>
+                          )}
                         </div>
-                        {/* Visual Bar with gradient */}
-                        {!compData && (
-                          <div className="w-full h-0.5 lg:h-1 bg-black/10 rounded-full mt-1 lg:mt-2 overflow-hidden">
-                            <div
-                              className="h-full opacity-60 rounded-full"
-                              style={{
-                                width: `${currentValue}%`,
-                                backgroundColor: 'currentColor'
-                              }}
-                            />
+                        <div className="flex flex-col items-start z-10">
+                          <div className="text-xl lg:text-4xl font-bold tracking-tight leading-none drop-shadow-sm">
+                            {currentValue}<span className="text-sm lg:text-lg font-medium opacity-80">%</span>
                           </div>
-                        )}
+                          {/* Visual Bar with gradient */}
+                          {!compData && (
+                            <div className="w-full h-0.5 lg:h-1 bg-black/10 rounded-full mt-1 lg:mt-2 overflow-hidden">
+                              <div
+                                className="h-full opacity-60 rounded-full"
+                                style={{
+                                  width: `${currentValue}%`,
+                                  backgroundColor: 'currentColor'
+                                }}
+                              />
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          ))}
+                  );
+                })}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
 
-    {/* Overall Cohort Kaplan-Meier Chart - NEW DEFAULT DISPLAY */}
-    <OverallCohortChart
-      indication={activeIndication}
-      analysisType={analysisType}
-      timeline={timeline}
-      gradientScheme={gradientScheme}
-      overallCohortData={dataset?.overallCohort || null}
-      selectedPersonaData={selectedPersona}
-      onResetToOverall={onResetToOverall}
-    />
-  </div>
-);
+      {/* Overall Cohort Kaplan-Meier Chart - NEW DEFAULT DISPLAY */}
+      <OverallCohortChart
+        indication={activeIndication}
+        analysisType={analysisType}
+        timeline={timeline}
+        gradientScheme={gradientScheme}
+        overallCohortData={dataset?.overallCohort || null}
+        selectedPersonaData={selectedPersona}
+        onResetToOverall={onResetToOverall}
+      />
+    </div>
+  );
+};
 
 // --- Module: Patient Personas B-ALL View ---
-const PersonasBALLView = ({ timeline, dataset, comparisonDataset, onCardClick, analysisType, gradientScheme, selectedPersona = null, onResetToOverall = null, activeIndication = 'B-ALL' }) => (
-  <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-    {/* Overall Cohort Card */}
-    {/* <OverallCohortCard
-      dataset={dataset}
-      analysisType={analysisType}
-      gradientScheme={gradientScheme}
-      onCardClick={onCardClick}
-      indication="B-ALL"
-    /> */}
+const PersonasBALLView = ({ timeline, dataset, comparisonDataset, onCardClick, analysisType, gradientScheme, selectedPersona = null, onResetToOverall = null, activeIndication = 'B-ALL' }) => {
+  // Calculate patient count for the card
+  const totalPatients = dataset.totalPatients;
 
-    {/* Individual Subgroups */}
-    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 lg:p-6 mb-6">
-      <div className="mb-4">
-        <h3 className="text-lg font-bold text-slate-800 mb-2">Individual Patient Subgroups</h3>
-        <p className="text-sm text-slate-600">Detailed breakdown by disease burden categories</p>
-      </div>
+  return (
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* Overall Cohort Card */}
+      {/* <OverallCohortCard
+        dataset={dataset}
+        analysisType={analysisType}
+        gradientScheme={gradientScheme}
+        onCardClick={onCardClick}
+        indication="B-ALL"
+      /> */}
 
-      <div className="w-full">
-        {/* Header Grid - Full Width */}
-        <div className="grid grid-cols-6 gap-2 lg:gap-4 mb-2">
-          <div className="col-span-2"></div>
-          <div className="col-span-2 bg-teal-50 rounded-t-lg border-t border-x border-teal-100 p-2 lg:p-3 text-center relative">
-            <div className="absolute top-0 left-0 w-full h-1 bg-teal-500 rounded-t-lg"></div>
-            <span className="text-teal-800 font-bold uppercase text-xs lg:text-sm">Low Burden</span>
-          </div>
-          <div className="col-span-2 bg-amber-50 rounded-t-lg border-t border-x border-amber-100 p-2 lg:p-3 text-center relative">
-            <div className="absolute top-0 left-0 w-full h-1 bg-amber-500 rounded-t-lg"></div>
-            <span className="text-amber-800 font-bold uppercase text-xs lg:text-sm">High Burden</span>
-          </div>
+      {/* Individual Subgroups */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 lg:p-6 mb-6">
+        <div className="mb-4">
+          <h3 className="text-lg font-bold text-slate-800 mb-2">Individual Patient Subgroups</h3>
+          <p className="text-sm text-slate-600">Detailed breakdown by disease burden categories</p>
         </div>
 
-        {/* Rows - Full Width Grid */}
-        <div className="space-y-4 mt-6">
-          {dataset.rows.map((row, rIdx) => (
-            <div key={row.id} className="grid grid-cols-6 gap-2 lg:gap-4 items-stretch group hover:bg-slate-50/50 rounded-xl transition-colors p-1 lg:p-2 -mx-1 lg:-mx-2">
-              <div className="col-span-2 flex flex-col justify-center pr-2 lg:pr-4 border-r border-slate-100">
-                <h3 className="font-bold text-slate-800 text-sm lg:text-lg leading-tight">{row.title}</h3>
-                <p className="text-[10px] lg:text-xs text-slate-500 mt-1 line-clamp-2">{row.desc}</p>
-                <div className="text-xs text-slate-400 mt-2 font-mono">n = {row.totalN}</div>
+        <div className="w-full">
+          {/* Header Grid - Full Width */}
+          <div className="grid grid-cols-6 gap-2 lg:gap-4 mb-2">
+            <div className="col-span-2">
+              <div className="bg-teal-50 rounded-lg p-3 flex items-center justify-center gap-3">
+                <Users className="w-6 h-6 text-teal-900" /><span className='text-3xl font-bold text-teal-900'>{totalPatients}</span> <span className='text-sm font-medium text-teal-600'>Patients</span>
               </div>
-              {dataset.columns.map(col => {
-                const currentValue = analysisType.toLowerCase() === 'pfs' ? row.values[col.id].pfs : row.values[col.id].os;
-                const compData = comparisonDataset ? comparisonDataset.rows[rIdx].values[col.id] : null;
-                const cardColor = getContinuousGradientColor(currentValue, gradientScheme);
-                const textColor = getContrastTextColor(currentValue);
+            </div>
+            <div className="col-span-2 flex items-center justify-center bg-teal-50 rounded-t-lg border-t border-x border-teal-100 p-2 lg:p-3 text-center relative">
+              <div className="absolute top-0 left-0 w-full h-1 bg-teal-500 rounded-t-lg"></div>
+              <span className="text-teal-800 font-bold uppercase text-xs lg:text-sm">Low Burden</span>
+            </div>
+            <div className="col-span-2 flex items-center justify-center bg-amber-50 rounded-t-lg border-t border-x border-amber-100 p-2 lg:p-3 text-center relative">
+              <div className="absolute top-0 left-0 w-full h-1 bg-amber-500 rounded-t-lg"></div>
+              <span className="text-amber-800 font-bold uppercase text-xs lg:text-sm">High Burden</span>
+            </div>
+          </div>
 
-                return (
-                  <div key={`${row.id}-${col.id}`} className="col-span-2">
-                    <div
-                      className={`h-20 lg:h-28 rounded-lg p-2 lg:p-3 flex flex-col justify-between transition-all hover:scale-[1.02] hover:shadow-lg cursor-pointer ${textColor} relative overflow-hidden border border-white/20`}
-                      style={{ backgroundColor: cardColor }}
-                      onClick={() => onCardClick && onCardClick(row.values[col.id], row, col)}
-                    >
-                      {/* Subtle gradient overlay for depth */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-black/5 pointer-events-none" />
+          {/* Rows - Full Width Grid */}
+          <div className="space-y-4 mt-6">
+            {dataset.rows.map((row, rIdx) => (
+              <div key={row.id} className="grid grid-cols-6 gap-2 lg:gap-4 items-stretch group hover:bg-slate-50/50 rounded-xl transition-colors p-1 lg:p-2 -mx-1 lg:-mx-2">
+                <div className="col-span-2 flex flex-col justify-center pr-2 lg:pr-4 border-r border-slate-100">
+                  <h3 className="font-bold text-slate-800 text-sm lg:text-[15px] leading-tight">{row.title}</h3>
+                  <p className="text-[10px] lg:text-xs text-slate-500 mt-1 line-clamp-2">{row.desc}</p>
+                  <div className="text-xs text-slate-400 mt-2 font-mono flex items-center gap-1">
+                    <Users className="w-3 h-3" />n = {row.totalN}
+                  </div>
+                </div>
+                {dataset.columns.map(col => {
+                  const currentValue = analysisType.toLowerCase() === 'pfs' ? row.values[col.id].pfs : row.values[col.id].os;
+                  const compData = comparisonDataset ? comparisonDataset.rows[rIdx].values[col.id] : null;
+                  const cardColor = getContinuousGradientColor(currentValue, gradientScheme);
+                  const textColor = getContrastTextColor(currentValue);
 
-                      <div className="flex justify-end items-start z-10">
-                        {!compData && (
-                          <div className="flex items-center gap-1.5 opacity-95 bg-black/15 px-2 lg:px-3 py-1 lg:py-1.5 rounded-lg text-xs lg:text-sm font-bold backdrop-blur-sm">
-                            <Users className="w-3 h-3 lg:w-4 lg:h-4" />
-                            <span className="font-mono">{row.values[col.id].n}</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex flex-col items-start z-10 mt-auto">
-                        <div className="text-3xl lg:text-5xl font-bold tracking-tight leading-none drop-shadow-sm">
-                          {currentValue}<span className="text-xl lg:text-2xl font-medium opacity-80">%</span>
+                  return (
+                    <div key={`${row.id}-${col.id}`} className="col-span-2">
+                      <div
+                        className={`h-20 lg:h-28 rounded-lg p-2 lg:p-3 flex flex-col justify-between transition-all hover:scale-[1.02] hover:shadow-lg cursor-pointer ${textColor} relative overflow-hidden border border-white/20`}
+                        style={{ backgroundColor: cardColor }}
+                        onClick={() => onCardClick && onCardClick(row.values[col.id], row, col)}
+                      >
+                        {/* Subtle gradient overlay for depth */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-black/5 pointer-events-none" />
+
+                        <div className="flex justify-end items-start z-10">
+                          {!compData && (
+                            <div className="flex items-center gap-1.5 opacity-95 bg-black/15 px-2 lg:px-3 py-1 lg:py-1.5 rounded-lg text-xs lg:text-sm font-bold backdrop-blur-sm">
+                              <Users className="w-3 h-3 lg:w-4 lg:h-4" />
+                              <span className="font-mono">{row.values[col.id].n}</span>
+                            </div>
+                          )}
                         </div>
-                        {/* Benchmarking Delta Badge */}
-                        {compData && (
-                          <div className={`mt-2 flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full backdrop-blur-sm ${(currentValue - (analysisType.toLowerCase() === 'pfs' ? compData.pfs : compData.os)) >= 0 ? 'bg-white/20 text-white' : 'bg-rose-900/30 text-rose-100'
-                            }`}>
-                            {(currentValue - (analysisType.toLowerCase() === 'pfs' ? compData.pfs : compData.os)) >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                            {(currentValue - (analysisType.toLowerCase() === 'pfs' ? compData.pfs : compData.os)) > 0 ? '+' : ''}{currentValue - (analysisType.toLowerCase() === 'pfs' ? compData.pfs : compData.os)}% vs NexCAR
+                        <div className="flex flex-col items-start z-10 mt-auto">
+                          <div className="text-3xl lg:text-5xl font-bold tracking-tight leading-none drop-shadow-sm">
+                            {currentValue}<span className="text-xl lg:text-2xl font-medium opacity-80">%</span>
                           </div>
-                        )}
-                        {/* Visual Bar with gradient */}
-                        {!compData && (
-                          <div className="w-full h-0.5 lg:h-1 bg-black/10 rounded-full mt-1 lg:mt-2 overflow-hidden">
-                            <div
-                              className="h-full opacity-60 rounded-full"
-                              style={{
-                                width: `${currentValue}%`,
-                                backgroundColor: 'currentColor'
-                              }}
-                            />
-                          </div>
-                        )}
+                          {/* Benchmarking Delta Badge */}
+                          {compData && (
+                            <div className={`mt-2 flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full backdrop-blur-sm ${(currentValue - (analysisType.toLowerCase() === 'pfs' ? compData.pfs : compData.os)) >= 0 ? 'bg-white/20 text-white' : 'bg-rose-900/30 text-rose-100'
+                              }`}>
+                              {(currentValue - (analysisType.toLowerCase() === 'pfs' ? compData.pfs : compData.os)) >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                              {(currentValue - (analysisType.toLowerCase() === 'pfs' ? compData.pfs : compData.os)) > 0 ? '+' : ''}{currentValue - (analysisType.toLowerCase() === 'pfs' ? compData.pfs : compData.os)}% vs NexCAR
+                            </div>
+                          )}
+                          {/* Visual Bar with gradient */}
+                          {!compData && (
+                            <div className="w-full h-0.5 lg:h-1 bg-black/10 rounded-full mt-1 lg:mt-2 overflow-hidden">
+                              <div
+                                className="h-full opacity-60 rounded-full"
+                                style={{
+                                  width: `${currentValue}%`,
+                                  backgroundColor: 'currentColor'
+                                }}
+                              />
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          ))}
+                  );
+                })}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
 
-    {/* Overall Cohort Kaplan-Meier Chart - NEW DEFAULT DISPLAY */}
-    <OverallCohortChart
-      indication={activeIndication}
-      analysisType={analysisType}
-      timeline={timeline}
-      gradientScheme={gradientScheme}
-      overallCohortData={dataset?.overallCohort || null}
-      selectedPersonaData={selectedPersona}
-      onResetToOverall={onResetToOverall}
-    />
-  </div>
-);
+      {/* Overall Cohort Kaplan-Meier Chart - NEW DEFAULT DISPLAY */}
+      <OverallCohortChart
+        indication={activeIndication}
+        analysisType={analysisType}
+        timeline={timeline}
+        gradientScheme={gradientScheme}
+        overallCohortData={dataset?.overallCohort || null}
+        selectedPersonaData={selectedPersona}
+        onResetToOverall={onResetToOverall}
+      />
+    </div>
+  );
+};
 
 // --- Main App Component ---
 export default function RWEDashboard() {
@@ -1647,7 +1665,6 @@ export default function RWEDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
-      {/* Fixed Sidebar - Always on extreme left */}
       <FilterSidebar
         isOpen={isFilterOpen}
         toggle={() => setIsFilterOpen(!isFilterOpen)}
@@ -1657,14 +1674,85 @@ export default function RWEDashboard() {
         activeIndication={activeIndication}
         filtersData={filtersData}
       />
-
-      {/* Main Content - Positioned next to sidebar with proper margin */}
       <div className={`transition-all duration-300 ${isFilterOpen ? 'ml-72' : 'ml-12'
         }`}>
-        <div className="max-w-none px-4 lg:px-8 py-6">
+        <div className="max-w-none px-4 lg:px-8">
+          {/* Active Filters - Sticky at top for Patient Personas */}
+          {activeModule === 'personas' && (
+            <div className="sticky top-16 z-40 bg-slate-50 mb-3">
+              <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+                <div className="flex flex-col gap-4">
+                  {/* Active Filters */}
+                  <div className="flex-1">
+                    <div className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Active Filters</div>
+                    <div className="flex flex-wrap gap-3">
+                      {(() => {
+                        const filterTexts = [];
+                        const levelNames = {
+                          'global': 'Overall Cohort',
+                          'region': 'Geographic Regions',
+                          'institute': 'Hospitals',
+                          'physician': 'Physicians'
+                        };
+
+                        if (filters.activeLevel !== 'global') {
+                          filterTexts.push(`Level: ${levelNames[filters.activeLevel]}`);
+
+                          if (filters.activeLevel === 'region' && filters.selectedRegion) {
+                            filterTexts.push(`Region: ${filters.selectedRegion}`);
+                          }
+                          if (filters.activeLevel === 'institute' && filters.selectedInstitute) {
+                            filterTexts.push(`Hospital: ${filters.selectedInstitute}`);
+                          }
+                          if (filters.activeLevel === 'physician' && filters.selectedPhysician) {
+                            filterTexts.push(`Physician: ${filters.selectedPhysician}`);
+                          }
+                        }
+
+                        const isFiltered = filters.activeLevel !== 'global';
+                        const displayTexts = filterTexts.length > 0 ? filterTexts : ['All Patients (Overall Cohort)'];
+
+                        return (
+                          <>
+                            {displayTexts.map((filter, index) => (
+                              <span key={index} className={`px-3 py-2 rounded-full text-sm font-semibold ${isFiltered ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-700'}`}>
+                                {filter}
+                              </span>
+                            ))}
+                            {/* Add Indication badge */}
+                            <span className="px-3 py-2 rounded-full text-sm font-semibold bg-teal-50 text-teal-700">
+                              {activeIndication}
+                            </span>
+                            {/* Add PFS/OS badge */}
+                            <span className="px-3 py-2 rounded-full text-sm font-semibold bg-indigo-50 text-indigo-700">
+                              {filters.analysisType}
+                            </span>
+                            {/* Add Timeline badge */}
+                            <span className="px-3 py-2 rounded-full text-sm font-semibold bg-indigo-50 text-indigo-700">
+                              {filters.timeline}
+                            </span>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* --- Top Control Area --- */}
-          <div className="flex flex-col items-center gap-4 mb-8">
-            {/* Module Switcher */}
+          <div className="flex flex-col items-center gap-4 mb-6">
+            <div className="flex items-center gap-2">
+              <Badge color={activeModule === 'benchmarking' ? "amber" : "indigo"}>
+                {activeModule === 'benchmarking' ? "Comparative Analysis" : "NexCAR19 RWE"}
+              </Badge>
+              {filters.comparator !== 'NexCAR19' && activeModule === 'benchmarking' && (
+                <Badge color="rose">
+                  vs {filters.comparator === 'SOC' ? filters.selectedRegimen : 'Global CAR-T'}
+                </Badge>
+              )}
+            </div>
             <div className="bg-white border border-slate-200 p-1 rounded-full shadow-sm inline-flex">
               <button
                 onClick={() => { setActiveModule('personas'); setFilters(f => ({ ...f, timeline: '12 Month' })); }}
@@ -1681,49 +1769,32 @@ export default function RWEDashboard() {
                 Benchmarking
               </button>
             </div>
-
-
           </div>
+
+
+
           {/* Header Area */}
           <div className="flex flex-col gap-6 mb-8 border-b border-slate-200 pb-6">
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-6">
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Badge color={activeModule === 'benchmarking' ? "amber" : "indigo"}>
-                    {activeModule === 'benchmarking' ? "Comparative Analysis" : "NexCAR19 Evidence"}
-                  </Badge>
-                  {filters.comparator !== 'NexCAR19' && activeModule === 'benchmarking' && (
-                    <Badge color="rose">
-                      vs {filters.comparator === 'SOC' ? filters.selectedRegimen : 'Global CAR-T'}
-                    </Badge>
-                  )}
-                </div>
-                <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
-                  {activeModule === 'personas' ? 'Patient Personas' : 'Performance Benchmark'}
-                  {activeModule === 'personas' && <span className="text-teal-600"> {activeIndication}</span>}
-                </h1>
-              </div>
-
               {/* Controls - Only for Patient Personas */}
               {activeModule === 'personas' && (
                 <div className="flex flex-col sm:flex-row gap-4">
-                  {/* Analysis Type Toggle - Moved from sidebar for better UX */}
+
+
                   <div className="flex flex-col">
-                    <div className="bg-white border border-slate-200 p-1 rounded-lg inline-flex shadow-sm">
+                    <div className="bg-white border border-slate-200 p-1 rounded-full shadow-sm inline-flex">
                       <button
                         onClick={() => setFilters(prev => ({ ...prev, analysisType: 'PFS' }))}
-                        className={`px-4 py-2 rounded-md text-sm font-bold transition-all flex items-center gap-2 ${filters.analysisType === 'PFS' ? 'bg-teal-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                        className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${filters.analysisType === 'PFS' ? 'bg-slate-800 text-white shadow' : 'text-slate-500 hover:text-slate-700'
                           }`}
                       >
-                        <Activity className="w-4 h-4" />
                         PFS
                       </button>
                       <button
                         onClick={() => setFilters(prev => ({ ...prev, analysisType: 'OS' }))}
-                        className={`px-4 py-2 rounded-md text-sm font-bold transition-all flex items-center gap-2 ${filters.analysisType === 'OS' ? 'bg-teal-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                        className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${filters.analysisType === 'OS' ? 'bg-slate-800 text-white shadow' : 'text-slate-500 hover:text-slate-700'
                           }`}
                       >
-                        <Activity className="w-4 h-4" />
                         OS
                       </button>
                     </div>
@@ -1732,21 +1803,20 @@ export default function RWEDashboard() {
                     </div>
                   </div>
 
-                  {/* Indication Switcher */}
-                  <div className="bg-slate-200 p-1.5 rounded-xl inline-flex shadow-inner">
+                  <div className="bg-white border border-slate-200 p-1 rounded-full shadow-sm inline-flex">
                     <button
                       onClick={() => setActiveIndication('NHL')}
-                      className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 flex items-center gap-2 ${activeIndication === 'NHL' ? 'bg-white text-slate-900 shadow-sm ring-1 ring-black/5' : 'text-slate-500 hover:text-slate-700'
+                      className={`px-10 py-2 rounded-full text-sm font-bold transition-all ${activeIndication === 'NHL' ? 'bg-slate-800 text-white shadow' : 'text-slate-500 hover:text-slate-700'
                         }`}
                     >
-                      <LayoutGrid className="w-4 h-4" /> NHL
+                      NHL
                     </button>
                     <button
                       onClick={() => setActiveIndication('B-ALL')}
-                      className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 flex items-center gap-2 ${activeIndication === 'B-ALL' ? 'bg-white text-slate-900 shadow-sm ring-1 ring-black/5' : 'text-slate-500 hover:text-slate-700'
+                      className={`px-10 py-2 rounded-full text-sm font-bold transition-all ${activeIndication === 'B-ALL' ? 'bg-slate-800 text-white shadow' : 'text-slate-500 hover:text-slate-700'
                         }`}
                     >
-                      <Activity className="w-4 h-4" /> B-ALL
+                      B-ALL
                     </button>
                   </div>
                 </div>
@@ -1754,18 +1824,8 @@ export default function RWEDashboard() {
             </div>
           </div>
 
-          {/* Module-specific Summary Bars */}
-          {activeModule === 'personas' ? (
-            /* Active Filters Summary Bar - Only for Patient Personas */
-            <ActiveFiltersSummary
-              filters={filters}
-              activeModule={activeModule}
-              activeIndication={activeIndication}
-              totalPatients={currentDataset.totalPatients}
-              apiData={apiData}
-            />
-          ) : (
-            /* Benchmarking Summary Bar - Only for Benchmarking */
+          {/* Benchmarking Summary Bar - Only for Benchmarking */}
+          {activeModule === 'benchmarking' && (
             <BenchmarkingSummary
               filters={filters}
               activeIndication={activeIndication}

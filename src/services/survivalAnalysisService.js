@@ -80,15 +80,15 @@ const transformNHLData = (cohortSize, overallKm, personaBuckets, kmObjects, anal
   const lateRelapse = Object.keys(personaMap).filter(p => p.includes('Late Relapsed'));
   
   if (refractory.length > 0) {
-    rows.push(createNHLRow('refractory', 'Primary Refractory', 'No response to initial therapy', refractory, personaMap));
+    rows.push(createNHLRow('refractory', 'Primary Refractory', 'No Response to Frontline Treatment', refractory, personaMap));
   }
   
   if (earlyRelapse.length > 0) {
-    rows.push(createNHLRow('early_relapse', 'Early Relapse (<1 yr)', 'Relapse within 12m therapy', earlyRelapse, personaMap));
+    rows.push(createNHLRow('early_relapse', 'Early Relapse', 'Relapse within 12M from last line of Therapy', earlyRelapse, personaMap));
   }
   
   if (lateRelapse.length > 0) {
-    rows.push(createNHLRow('late_relapse', 'Late Relapse (>1 yr)', 'Relapse after 12m remission', lateRelapse, personaMap));
+    rows.push(createNHLRow('late_relapse', 'Late Relapse', 'Relapse after 12M from last line of Therapy', lateRelapse, personaMap));
   }
   
   return {

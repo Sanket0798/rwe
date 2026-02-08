@@ -466,11 +466,11 @@ const OverallCohortChart = ({
                 fill="#374151"
                 transform={`rotate(-90, 20, ${height / 2})`}
               >
-                {analysisType} Probability
+                {analysisType} Percentage
               </text>
 
               {/* Chart title */}
-              <text
+              {/* <text
                 x={width / 2}
                 y={25}
                 textAnchor="middle"
@@ -482,7 +482,7 @@ const OverallCohortChart = ({
                   ? `${chartData.persona_info.title} - ${indication} (n=${data.overall_km.n})`
                   : `Overall Cohort ${analysisType} - ${indication} (n=${data.overall_km.n})`
                 }
-              </text>
+              </text> */}
 
               {/* Interactive Tooltip */}
               {hoveredPoint && (

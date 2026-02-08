@@ -14,10 +14,10 @@ const Header = ({ user, onLogout }) => {
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3 ml-[150px]">
-            <Activity className="w-10 h-10 text-emerald-600" />
+            {/* <Activity className="w-10 h-10 text-emerald-600" /> */}
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 ">Actelligence</h1>
-              <p className="text-sm text-gray-600">NexCAR19 Clinical Analytics Platform</p>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-[#355699] via-[#307a78] to-[#86be22] bg-clip-text text-transparent h-11">ACT<span className='italic'>elligence</span></h1>
+              {/* <p className="text-sm text-gray-600">NexCAR19 Clinical Analytics Platform</p> */}
             </div>
           </div>
           
