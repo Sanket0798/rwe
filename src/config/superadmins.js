@@ -69,6 +69,16 @@ export const SUPERADMINS = {
         name: 'Devanshi Kalra',
         role: 'superadmin',
     },
+    'smrithi.ravikumar@immunoact.com': {
+        password: 'wxUfWI).+t~^zs#$$_[J',
+        name: 'Devanshi Kalra',
+        role: 'superadmin',
+    },
+    'atharva.karulkar@immunoact.com': {
+        password: 'eBbpsQ_[%T4XQnGPx31d',
+        name: 'Devanshi Kalra',
+        role: 'superadmin',
+    },
 };
 
 // Helper function to validate superadmin credentials
