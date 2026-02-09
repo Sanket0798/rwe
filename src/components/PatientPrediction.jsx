@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { CheckCircle2, AlertTriangle, XCircle, Info } from "lucide-react";
 
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
 // eslint-disable-next-line no-unused-vars
 const ResponsePopup = ({ text, color }) => {

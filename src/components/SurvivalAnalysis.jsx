@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { HeartPulse, Users, Activity, Timer } from "lucide-react";
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 const SurvivalAnalysis = () => {
   const [indication, setIndication] = useState('Leukemia');

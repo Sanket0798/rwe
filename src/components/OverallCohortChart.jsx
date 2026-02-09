@@ -154,7 +154,7 @@ const OverallCohortChart = ({
 
         console.log('📤 Direct API payload:', directApiPayload);
 
-        const directResponse = await fetch('http://localhost:5000/survival-analysis', {
+        const directResponse = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/survival-analysis`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(directApiPayload)

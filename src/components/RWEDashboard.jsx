@@ -1322,7 +1322,7 @@ export default function RWEDashboard() {
       const runQuickTest = async () => {
         console.log('🧪 Running quick API test...');
         try {
-          const response = await fetch('http://localhost:5000/health');
+          const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/health`);
           const data = await response.json();
           console.log('✅ Quick test result:', data);
         } catch (error) {
