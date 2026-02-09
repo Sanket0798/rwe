@@ -394,25 +394,28 @@ const ComparisonTable = () => {
     <div className="space-y-6">
       {/* Disease Type Toggle - Only at top */}
       <div className="flex justify-start">
-        <div className="bg-white border border-slate-200 p-1 rounded-full shadow-sm inline-flex">
-          <button
-            onClick={() => setDiseaseType(DISEASE_TYPES.B_ALL)}
-            className={`px-10 py-2 rounded-full text-sm font-bold transition-all ${diseaseType === DISEASE_TYPES.B_ALL
-              ? 'bg-slate-800 text-white shadow'
-              : 'text-slate-500 hover:text-slate-700'
-              }`}
-          >
-            B-ALL
-          </button>
-          <button
-            onClick={() => setDiseaseType(DISEASE_TYPES.NHL)}
-            className={`px-10 py-2 rounded-full text-sm font-bold transition-all ${diseaseType === DISEASE_TYPES.NHL
-              ? 'bg-slate-800 text-white shadow'
-              : 'text-slate-500 hover:text-slate-700'
-              }`}
-          >
-            NHL
-          </button>
+        <div className='flex flex-col'>
+          <div className="bg-white border border-slate-200 p-1 rounded-full shadow-sm inline-flex">
+            <button
+              onClick={() => setDiseaseType(DISEASE_TYPES.B_ALL)}
+              className={`px-10 py-2 rounded-full text-sm font-bold transition-all ${diseaseType === DISEASE_TYPES.B_ALL
+                ? 'bg-slate-800 text-white shadow'
+                : 'text-slate-500 hover:text-slate-700'
+                }`}
+            >
+              B-ALL
+            </button>
+            <button
+              onClick={() => setDiseaseType(DISEASE_TYPES.NHL)}
+              className={`px-10 py-2 rounded-full text-sm font-bold transition-all ${diseaseType === DISEASE_TYPES.NHL
+                ? 'bg-slate-800 text-white shadow'
+                : 'text-slate-500 hover:text-slate-700'
+                }`}
+            >
+              NHL
+            </button>
+          </div>
+          <p className='text-xs text-slate-500 mt-1 text-center'>Indication Type</p>
         </div>
       </div>
 
@@ -429,8 +432,8 @@ const ComparisonTable = () => {
                   key={idx}
                   scope="col"
                   className={`py-4 px-4 text-center font-semibold ${idx === PRIMARY_INDEX
-                    ? 'font-bold text-emerald-800 bg-emerald-50/50 border-x border-emerald-100 relative'
-                    : 'text-slate-400'
+                    ? 'font-extrabold text-black bg-emerald-50/50 border-x border-emerald-100 relative'
+                    : 'text-black'
                     }`}
                   style={{ width: `${60 / currentData.products.length}%` }}
                 >
@@ -479,25 +482,28 @@ const ComparisonTable = () => {
                   </span>
 
                   {/* Survival Type Toggle - Inline with heading */}
-                  <div className="bg-white border border-slate-200 p-1 rounded-full shadow-sm inline-flex">
-                    <button
-                      onClick={() => setSurvivalType(SURVIVAL_TYPES.PFS)}
-                      className={`px-8 py-1.5 rounded-full text-xs font-bold transition-all ${survivalType === SURVIVAL_TYPES.PFS
-                        ? 'bg-slate-800 text-white shadow'
-                        : 'text-slate-500 hover:text-slate-700'
-                        }`}
-                    >
-                      PFS
-                    </button>
-                    <button
-                      onClick={() => setSurvivalType(SURVIVAL_TYPES.OS)}
-                      className={`px-8 py-1.5 rounded-full text-xs font-bold transition-all ${survivalType === SURVIVAL_TYPES.OS
-                        ? 'bg-slate-800 text-white shadow'
-                        : 'text-slate-500 hover:text-slate-700'
-                        }`}
-                    >
-                      OS
-                    </button>
+                  <div className='flex flex-col'>
+                    <div className="bg-white border border-slate-200 p-1 rounded-full shadow-sm inline-flex">
+                      <button
+                        onClick={() => setSurvivalType(SURVIVAL_TYPES.PFS)}
+                        className={`px-8 py-1.5 rounded-full text-xs font-bold transition-all ${survivalType === SURVIVAL_TYPES.PFS
+                          ? 'bg-slate-800 text-white shadow'
+                          : 'text-slate-500 hover:text-slate-700'
+                          }`}
+                      >
+                        PFS
+                      </button>
+                      <button
+                        onClick={() => setSurvivalType(SURVIVAL_TYPES.OS)}
+                        className={`px-8 py-1.5 rounded-full text-xs font-bold transition-all ${survivalType === SURVIVAL_TYPES.OS
+                          ? 'bg-slate-800 text-white shadow'
+                          : 'text-slate-500 hover:text-slate-700'
+                          }`}
+                      >
+                        OS
+                      </button>
+                    </div>
+                    <p className='text-xs text-slate-500 mt-1 text-center'>Survival Analysis</p>
                   </div>
                 </div>
               </td>

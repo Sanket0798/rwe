@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
-import LoginImage from '../assets/Login_Image.png';
+import LoginVideo from '../assets/Login_Video.mov';
 import { validateSuperadmin } from '../config/superadmins';
 
 const Login = ({ onLogin }) => {
@@ -104,17 +104,27 @@ const Login = ({ onLogin }) => {
             {/* Desktop view - login page */}
             <div className="hidden lg:flex min-h-screen">
                 <div className="flex-[2] relative overflow-hidden">
-                    <img
-                        src={LoginImage}
-                        alt="Login Background"
+                    <video
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
                         className="absolute inset-0 w-full h-full object-cover"
-                    />
+                    >
+                        <source src={LoginVideo} type="video/mp4" />
+                        Your browser does not support the video tag.
+                    </video>
                     <div className="absolute inset-0 bg-black/20"></div>
                 </div>
 
                 <div className="flex-[1] bg-gray-50 flex items-center justify-center p-8">
                     <div className="w-full max-w-md">
                         <div className="flex justify-center items-center space-x-3 mb-6">
+                            <img 
+                                src="/ACT360.png" 
+                                alt="Actelligence Logo" 
+                                className="h-14 w-auto"
+                            />
                             <div className="text-center">
                                 <h1 className="text-4xl font-bold mb-1 bg-gradient-to-r from-[#355699] via-[#307a78] to-[#86be22] bg-clip-text text-transparent h-11">ACT<span className='italic'>elligence</span></h1>
                             </div>

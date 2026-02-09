@@ -1729,6 +1729,25 @@ export default function RWEDashboard() {
               {activeModule === 'personas' && (
                 <div className="flex flex-col sm:flex-row gap-4">
 
+                  <div className="flex flex-col">
+                    <div className="bg-white border border-slate-200 p-1 rounded-full shadow-sm inline-flex">
+                      <button
+                        onClick={() => setActiveIndication('NHL')}
+                        className={`px-10 py-2 rounded-full text-sm font-bold transition-all ${activeIndication === 'NHL' ? 'bg-slate-800 text-white shadow' : 'text-slate-500 hover:text-slate-700'
+                          }`}
+                      >
+                        NHL
+                      </button>
+                      <button
+                        onClick={() => setActiveIndication('B-ALL')}
+                        className={`px-10 py-2 rounded-full text-sm font-bold transition-all ${activeIndication === 'B-ALL' ? 'bg-slate-800 text-white shadow' : 'text-slate-500 hover:text-slate-700'
+                          }`}
+                      >
+                        B-ALL
+                      </button>
+                    </div>
+                    <p className='text-xs text-slate-500 mt-1 text-center'>Indication Type</p>
+                  </div>
 
                   <div className="flex flex-col">
                     <div className="bg-white border border-slate-200 p-1 rounded-full shadow-sm inline-flex">
@@ -1747,27 +1766,13 @@ export default function RWEDashboard() {
                         OS
                       </button>
                     </div>
-                    <div className="text-xs text-slate-500 mt-1 text-center">
+                    {/* <div className="text-xs text-slate-500 mt-1 text-center">
                       {filters.analysisType === 'PFS' ? 'Progression-Free Survival' : 'Overall Survival'}
-                    </div>
+                    </div> */}
+                    <p className='text-xs text-slate-500 mt-1 text-center'>Survival Analysis</p>
                   </div>
 
-                  <div className="bg-white border border-slate-200 p-1 rounded-full shadow-sm inline-flex">
-                    <button
-                      onClick={() => setActiveIndication('NHL')}
-                      className={`px-10 py-2 rounded-full text-sm font-bold transition-all ${activeIndication === 'NHL' ? 'bg-slate-800 text-white shadow' : 'text-slate-500 hover:text-slate-700'
-                        }`}
-                    >
-                      NHL
-                    </button>
-                    <button
-                      onClick={() => setActiveIndication('B-ALL')}
-                      className={`px-10 py-2 rounded-full text-sm font-bold transition-all ${activeIndication === 'B-ALL' ? 'bg-slate-800 text-white shadow' : 'text-slate-500 hover:text-slate-700'
-                        }`}
-                    >
-                      B-ALL
-                    </button>
-                  </div>
+
                 </div>
               )}
             </div>
