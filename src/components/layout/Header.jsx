@@ -10,10 +10,10 @@ const Header = ({ user, onLogout }) => {
     navigate('/login');
   };
   return (
-    <header className="bg-white shadow-sm border-b-2 border-emerald-600">
+    <header className="bg-white shadow-sm border-b-2 border-emerald-600 top-0 z-50">
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3 ml-[160px]">
+          <div className="flex items-center space-x-3 ml-[300px] 2xl:ml-[160px]">
             <div className='flex justify-center items-center space-x-3'>
               <img
                 src="/ACT360.png"

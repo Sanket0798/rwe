@@ -812,7 +812,7 @@ const FilterSidebar = ({
   // --- Render ---
   if (!isOpen) {
     return (
-      <div className="fixed left-0 top-0 w-12 bg-white border-r border-slate-200 flex flex-col items-center py-6 gap-6 h-screen z-30 shadow-lg">
+      <div className="fixed left-0 top-0 w-12 bg-white border-r border-slate-200 flex flex-col items-center py-6 gap-6 h-screen z-[100] shadow-lg">
         <button onClick={toggle} className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors">
           <Filter className="w-5 h-5" />
         </button>
@@ -821,7 +821,7 @@ const FilterSidebar = ({
   }
 
   return (
-    <div className="fixed left-0 top-0 w-72 bg-white border-r border-slate-200 flex flex-col h-screen overflow-y-auto z-80 shadow-lg">
+    <div className="fixed left-0 top-0 w-72 bg-white border-r border-slate-200 flex flex-col h-screen overflow-y-auto z-[100] shadow-lg">
       <div className="p-4 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
         <h3 className="font-bold text-slate-800 flex items-center gap-2">
           {activeModule === 'benchmarking' ? <Scale className="w-4 h-4 text-teal-600" /> : <Filter className="w-4 h-4 text-teal-600" />}
@@ -885,13 +885,13 @@ const FilterSidebar = ({
         {activeModule === 'personas' && (
           <div>
             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1">
-              <Calendar className="w-3 h-3" /> Elapsed Time
+              <Calendar className="w-3 h-3" /> Evaluation Timepoint
             </label>
             <div className="relative">
               <select
                 value={filters.timeline}
                 onChange={(e) => setFilters(prev => ({ ...prev, timeline: e.target.value }))}
-                className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 p-2.5 appearance-none"
+                className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 p-2.5 appearance-none cursor-pointer"
               >
                 <option value="1 Month">1 Month</option>
                 <option value="3 Month">3 Months</option>
@@ -1012,7 +1012,7 @@ const FilterSidebar = ({
 };
 
 // --- Module: Patient Personas NHL View ---
-const PersonasNHLView = ({ timeline, dataset, comparisonDataset, onCardClick, analysisType, gradientScheme, selectedPersona = null, onResetToOverall = null, activeIndication = 'NHL' }) => {
+const PersonasNHLView = ({ timeline, dataset, comparisonDataset, onCardClick, analysisType, gradientScheme, selectedPersona = null, onResetToOverall = null, activeIndication = 'NHL', selectedCard = null }) => {
   // Calculate patient count for the card
   const totalPatients = dataset.totalPatients;
 
@@ -1028,7 +1028,7 @@ const PersonasNHLView = ({ timeline, dataset, comparisonDataset, onCardClick, an
       /> */}
 
       {/* Individual Subgroups */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 lg:p-6 mb-6">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 lg:p-6 mb-6 relative z-10">
         <div className="mb-4">
           <h3 className="text-lg font-bold text-slate-800 mb-2">Individual Patient Subgroups</h3>
           <p className="text-sm text-slate-600">Detailed breakdown by risk category and disease characteristics</p>
@@ -1087,10 +1087,16 @@ const PersonasNHLView = ({ timeline, dataset, comparisonDataset, onCardClick, an
                   const cardColor = getContinuousGradientColor(currentValue, gradientScheme);
                   const textColor = getContrastTextColor(currentValue);
 
+                  // Check if this card is selected
+                  const isSelected = selectedCard && selectedCard.rowId === row.id && selectedCard.colId === col.id;
+
                   return (
                     <div key={`${row.id}-${col.id}`} className="col-span-2">
                       <div
-                        className={`h-20 lg:h-28 rounded-lg p-2 lg:p-3 flex flex-col justify-between transition-all hover:scale-[1.02] hover:shadow-lg cursor-pointer ${textColor} relative overflow-hidden border border-white/20`}
+                        className={`h-20 lg:h-28 rounded-lg p-2 lg:p-3 flex flex-col justify-between transition-all hover:scale-[1.02] hover:shadow-lg cursor-pointer ${textColor} relative overflow-hidden ${isSelected
+                            ? 'border-4 border-black/40 shadow-xl'
+                            : 'border border-white'
+                          }`}
                         style={{ backgroundColor: cardColor }}
                         onClick={() => onCardClick && onCardClick(row.values[col.id], row, col)}
                       >
@@ -1147,7 +1153,7 @@ const PersonasNHLView = ({ timeline, dataset, comparisonDataset, onCardClick, an
 };
 
 // --- Module: Patient Personas B-ALL View ---
-const PersonasBALLView = ({ timeline, dataset, comparisonDataset, onCardClick, analysisType, gradientScheme, selectedPersona = null, onResetToOverall = null, activeIndication = 'B-ALL' }) => {
+const PersonasBALLView = ({ timeline, dataset, comparisonDataset, onCardClick, analysisType, gradientScheme, selectedPersona = null, onResetToOverall = null, activeIndication = 'B-ALL', selectedCard = null }) => {
   // Calculate patient count for the card
   const totalPatients = dataset.totalPatients;
 
@@ -1163,7 +1169,7 @@ const PersonasBALLView = ({ timeline, dataset, comparisonDataset, onCardClick, a
       /> */}
 
       {/* Individual Subgroups */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 lg:p-6 mb-6">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 lg:p-6 mb-6 relative z-10">
         <div className="mb-4">
           <h3 className="text-lg font-bold text-slate-800 mb-2">Individual Patient Subgroups</h3>
           <p className="text-sm text-slate-600">Detailed breakdown by disease burden categories</p>
@@ -1204,10 +1210,16 @@ const PersonasBALLView = ({ timeline, dataset, comparisonDataset, onCardClick, a
                   const cardColor = getContinuousGradientColor(currentValue, gradientScheme);
                   const textColor = getContrastTextColor(currentValue);
 
+                  // Check if this card is selected
+                  const isSelected = selectedCard && selectedCard.rowId === row.id && selectedCard.colId === col.id;
+
                   return (
                     <div key={`${row.id}-${col.id}`} className="col-span-2">
                       <div
-                        className={`h-20 lg:h-28 rounded-lg p-2 lg:p-3 flex flex-col justify-between transition-all hover:scale-[1.02] hover:shadow-lg cursor-pointer ${textColor} relative overflow-hidden border border-white/20`}
+                        className={`h-20 lg:h-28 rounded-lg p-2 lg:p-3 flex flex-col justify-between transition-all hover:shadow-lg cursor-pointer ${textColor} relative overflow-hidden ${isSelected
+                            ? 'border-4 border-black/40 shadow-xl'
+                            : 'border border-white/20'
+                          }`}
                         style={{ backgroundColor: cardColor }}
                         onClick={() => onCardClick && onCardClick(row.values[col.id], row, col)}
                       >
@@ -1300,11 +1312,14 @@ export default function RWEDashboard() {
   // NEW: State for selected persona chart
   const [selectedPersona, setSelectedPersona] = useState(null);
 
+  // NEW: State for selected card (to show border)
+  const [selectedCard, setSelectedCard] = useState(null);
+
   // Use the survival analysis hook for real data
   const {
     data: apiData,
-    // loading: apiLoading,
-    // error: apiError,
+    loading: apiLoading,
+    error: apiError,
     apiHealthy
   } = useSurvivalAnalysis(filters, activeIndication, activeModule);
 
@@ -1420,17 +1435,25 @@ export default function RWEDashboard() {
   // NEW: Function to handle persona card clicks
   const handlePersonaCardClick = (cohortData, rowData, columnData) => {
     try {
+      // Set the selected card for visual indication
+      setSelectedCard({ rowId: rowData.id, colId: columnData.id });
+
       console.log('🎯 Persona card clicked:', {
         cohortData,
         rowData: rowData?.title,
         columnData: columnData?.label,
-        columnData_full: columnData
+        columnData_full: columnData,
+        'Card Values': {
+          pfs: cohortData.pfs,
+          os: cohortData.os,
+          n: cohortData.n
+        }
       });
 
-      // Check if this is a 0% card (no patients)
-      const currentValue = filters.analysisType.toLowerCase() === 'pfs' ? cohortData.pfs : cohortData.os;
-      if (currentValue === 0 || cohortData.n === 0) {
-        console.log('⚠️ Clicked on 0% card - no patients in this subgroup');
+      // Check if this is a card with NO PATIENTS (not just 0% survival)
+      // IMPORTANT: 0% survival with n > 0 means patients exist but didn't survive
+      if (cohortData.n === 0) {
+        console.log('⚠️ Clicked on card with no patients (n=0)');
 
         // Show a user-friendly message instead of trying to find KM data
         const personaIdentifier = createPersonaIdentifier(rowData, columnData);
@@ -1455,32 +1478,102 @@ export default function RWEDashboard() {
         return;
       }
 
+      // If we reach here, the card has patients (even if survival is 0%)
+      console.log(`✅ Card has ${cohortData.n} patients (survival may be 0% but patients exist)`);
+
       // Find the corresponding persona KM data from API response
       if (apiData && apiData.persona_km_objects) {
         // Create persona identifier to match with backend data
         const personaIdentifier = createPersonaIdentifier(rowData, columnData);
         console.log('🔍 Looking for persona:', personaIdentifier);
-        console.log('🔍 Available personas:', apiData.persona_km_objects.map(p => p.persona));
+        console.log('🔍 Card data:', {
+          pfs: cohortData.pfs,
+          os: cohortData.os,
+          n: cohortData.n,
+          rowTitle: rowData.title,
+          columnLabel: columnData?.label,
+          columnSub: columnData?.sub,
+          columnRange: columnData?.range,
+          columnType: columnData?.type,
+          columnId: columnData?.id
+        });
+        console.log('🔍 Available personas:', apiData.persona_km_objects.map(p => ({
+          persona: p.persona,
+          n: p.n,
+          survival_12m: Math.round(p.y[12] * 100)
+        })));
 
-        // Find matching KM object with exact match
+        // Find matching KM object with multiple matching strategies
         const matchingKM = apiData.persona_km_objects.find(kmObj => {
+          // Strategy 1: Exact persona string match (HIGHEST PRIORITY)
           const exactMatch = kmObj.persona === personaIdentifier;
-          const titleMatch = kmObj.persona.includes(rowData.title);
+
+          if (exactMatch) {
+            console.log(`✅ EXACT MATCH FOUND: "${kmObj.persona}"`);
+            return true;
+          }
+
+          // Strategy 2: Patient count match (most reliable for unique subgroups)
           const patientMatch = kmObj.n === cohortData.n;
+
+          // Strategy 3: Partial match on all key components
+          const titleMatch = kmObj.persona.includes(rowData.title);
+
+          // For NHL, we need to match BOTH bulky/non-bulky AND IPI range
+          let columnMatch = false;
+          if (columnData) {
+            if (activeIndication === 'NHL') {
+              // Must match BOTH sub (Bulky/Non-Bulky) AND range (0-2 or 3-5)
+              const subMatch = columnData.sub && kmObj.persona.includes(columnData.sub);
+              const rangeMatch = columnData.range && (
+                (columnData.range === '0-2' && kmObj.persona.includes('Low (0–2)')) ||
+                (columnData.range === '3-5' && kmObj.persona.includes('High (3–5)'))
+              );
+              columnMatch = subMatch && rangeMatch;
+
+              console.log(`  NHL Column Matching:`, {
+                sub: columnData.sub,
+                range: columnData.range,
+                subMatch,
+                rangeMatch,
+                columnMatch
+              });
+            } else if (activeIndication === 'B-ALL') {
+              // For B-ALL, match blast percentage
+              columnMatch = (
+                (columnData.type === 'low' && kmObj.persona.includes('Blast <5%')) ||
+                (columnData.type === 'high' && kmObj.persona.includes('Blast ≥5%'))
+              );
+            }
+          }
+
+          const partialMatch = titleMatch && columnMatch;
 
           console.log(`🔍 Checking "${kmObj.persona}":`, {
             exactMatch,
-            titleMatch,
             patientMatch,
+            partialMatch,
+            titleMatch,
+            columnMatch,
             kmObj_n: kmObj.n,
-            cohortData_n: cohortData.n
+            cohortData_n: cohortData.n,
+            'Will match?': exactMatch || (patientMatch && partialMatch)
           });
 
-          return exactMatch || titleMatch || patientMatch;
+          // STRICT MATCHING: Require both patient count AND partial match
+          // This prevents matching wrong personas when patient counts are the same
+          return patientMatch && partialMatch;
         });
 
         if (matchingKM) {
-          console.log('✅ Found matching KM data:', matchingKM);
+          console.log('✅ Found matching KM data:', {
+            persona: matchingKM.persona,
+            n: matchingKM.n,
+            survival_12m: Math.round(matchingKM.y[12] * 100)
+          });
+
+          // Get the timeline value for survival rate calculation
+          const timelineMonths = parseInt(filters.timeline.split(' ')[0]); // Extract months from "12 Month"
 
           const personaData = {
             kmData: matchingKM,
@@ -1488,14 +1581,18 @@ export default function RWEDashboard() {
             persona: matchingKM.persona,
             title: rowData.title,
             description: `${rowData.desc} - ${columnData?.label || 'All patients'} (${columnData?.sub || ''})`,
-            survivalRate: Math.round(matchingKM.y[12] * 100) // 12-month survival
+            survivalRate: Math.round(matchingKM.y[timelineMonths] * 100) // Use selected timeline
           };
 
           setSelectedPersona(personaData);
         } else {
           console.warn('❌ No matching KM data found for persona');
           console.warn('❌ Searched for:', personaIdentifier);
+          console.warn('❌ Card data:', { n: cohortData.n, pfs: cohortData.pfs, os: cohortData.os });
           console.warn('❌ Available personas:', apiData.persona_km_objects.map(p => `"${p.persona}" (n=${p.n})`));
+
+          // Show an alert to the user
+          alert(`Unable to find matching survival curve data for this patient subgroup.\n\nSearched for: ${personaIdentifier}\nPatients: ${cohortData.n}\n\nThis may indicate a data mismatch between the card display and the survival analysis data.`);
 
           // Reset to overall cohort view if no match found
           setSelectedPersona(null);
@@ -1504,6 +1601,9 @@ export default function RWEDashboard() {
         console.warn('❌ No API data available for persona matching');
         console.warn('❌ apiData exists:', !!apiData);
         console.warn('❌ persona_km_objects exists:', !!(apiData && apiData.persona_km_objects));
+
+        // Show an alert to the user
+        alert('No survival analysis data available. Please ensure the API is connected and data is loaded.');
 
         // Reset to overall cohort view if no API data
         setSelectedPersona(null);
@@ -1515,12 +1615,18 @@ export default function RWEDashboard() {
     }
   };
 
-  // Helper function to create persona identifier
+  // Helper function to create persona identifier - MUST match backend format exactly
   const createPersonaIdentifier = (rowData, columnData) => {
+    // For B-ALL, backend uses "Refractory" and "Relapsed" without "Population"
     let identifier = rowData.title;
 
+    // Remove "Population" suffix for B-ALL to match backend format
+    if (activeIndication === 'B-ALL') {
+      identifier = identifier.replace(' Population', '');
+    }
+
     if (columnData) {
-      // Add column information
+      // Add column information - EXACT format matching backend
       if (columnData.sub === 'Non-Bulky') {
         identifier += ' | Non-Bulky';
       } else if (columnData.sub === 'Bulky') {
@@ -1543,6 +1649,7 @@ export default function RWEDashboard() {
       }
     }
 
+    console.log('🏷️ Created persona identifier:', identifier);
     return identifier;
   };
 
@@ -1551,6 +1658,7 @@ export default function RWEDashboard() {
     try {
       console.log('🔄 Resetting to overall cohort view');
       setSelectedPersona(null);
+      setSelectedCard(null); // Clear selected card border
     } catch (error) {
       console.error('❌ Error in resetToOverallCohort:', error);
     }
@@ -1572,11 +1680,18 @@ export default function RWEDashboard() {
       activeModule,
       activeIndication,
       apiData: apiData ? 'available' : 'not available',
-      apiHealthy
+      apiHealthy,
+      apiLoading
     });
 
     // 1. For personas module, use API data if available, otherwise fallback to mock
     if (activeModule === 'personas') {
+      // IMPORTANT: If loading, return null to show loading state
+      if (apiLoading) {
+        console.log('⏳ API is loading - returning null to show loading state');
+        return null;
+      }
+
       if (apiData && apiHealthy) {
         console.log('✅ Using API data for personas:', {
           totalPatients: apiData.totalPatients,
@@ -1588,8 +1703,9 @@ export default function RWEDashboard() {
         });
         return apiData;
       }
-      // Fallback to mock data
-      console.log('⚠️ Using fallback mock data for personas');
+
+      // Fallback to mock data only if NOT loading and API is not healthy
+      console.log('⚠️ Using fallback mock data for personas (API not healthy or no data)');
       return activeIndication === 'NHL' ? DATA_NHL_NEXCAR : DATA_BALL_NEXCAR;
     }
 
@@ -1599,7 +1715,7 @@ export default function RWEDashboard() {
     // Since we only have Global CAR-T now, generate benchmark data
     const modifier = 1.05;
     return generateBenchmarkData(baseNexCAR, modifier);
-  }, [activeModule, activeIndication, apiData, apiHealthy]);
+  }, [activeModule, activeIndication, apiData, apiHealthy, apiLoading]);
 
   // Comparison Reference (Always base data for Benchmarking view)
   const comparisonReference = useMemo(() => {
@@ -1625,7 +1741,7 @@ export default function RWEDashboard() {
         <div className="max-w-none px-4 lg:px-8">
           {/* Active Filters - Sticky at top for Patient Personas */}
           {activeModule === 'personas' && (
-            <div className="sticky top-16 z-40 bg-slate-50 mb-3">
+            <div className="sticky top-16 z-50 bg-slate-50 mb-3">
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
                 <div className="flex flex-col gap-4">
                   {/* Active Filters */}
@@ -1870,30 +1986,97 @@ export default function RWEDashboard() {
           {/* Dynamic Content - Module-based Rendering */}
           <div className="min-h-[600px]">
             {activeModule === 'personas' ? (
-              // PATIENT PERSONAS MODULE
-              activeIndication === 'NHL'
-                ? <PersonasNHLView
-                  timeline={filters.timeline}
-                  dataset={currentDataset}
-                  comparisonDataset={comparisonReference}
-                  onCardClick={openKaplanMeierModal}
-                  analysisType={filters.analysisType}
-                  gradientScheme={filters.gradientScheme}
-                  selectedPersona={selectedPersona}
-                  onResetToOverall={resetToOverallCohort}
-                  activeIndication={activeIndication}
-                />
-                : <PersonasBALLView
-                  timeline={filters.timeline}
-                  dataset={currentDataset}
-                  comparisonDataset={comparisonReference}
-                  onCardClick={openKaplanMeierModal}
-                  analysisType={filters.analysisType}
-                  gradientScheme={filters.gradientScheme}
-                  selectedPersona={selectedPersona}
-                  onResetToOverall={resetToOverallCohort}
-                  activeIndication={activeIndication}
-                />
+              <>
+                {/* Loading State - Show spinner while fetching data */}
+                {apiLoading && (
+                  <div className="flex flex-col items-center justify-center min-h-[400px] bg-white rounded-xl shadow-sm border border-slate-200 p-8">
+                    <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-teal-600 mb-4"></div>
+                    <h3 className="text-xl font-bold text-slate-800 mb-2">Loading Patient Data...</h3>
+                    <p className="text-sm text-slate-600">Fetching survival analysis from backend</p>
+                  </div>
+                )}
+
+                {/* Error State - Show if API failed and no fallback */}
+                {!apiLoading && apiError && !currentDataset && (
+                  <div className="bg-red-50 rounded-xl shadow-sm border-2 border-red-200 p-6 mb-6">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0">
+                        <svg className="w-8 h-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-bold text-red-900 mb-2">Unable to Load Data</h3>
+                        <p className="text-sm text-red-700 mb-4">{apiError}</p>
+                        <button
+                          onClick={() => window.location.reload()}
+                          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+                        >
+                          Retry
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Warning Banner - Show when using fallback data */}
+                {/* {!apiLoading && !apiHealthy && currentDataset && (
+                  <div className="bg-amber-50 rounded-xl shadow-sm border-2 border-amber-200 p-4 mb-6">
+                    <div className="flex items-center gap-3">
+                      <svg className="w-6 h-6 text-amber-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                      <div className="flex-1">
+                        <h4 className="text-sm font-bold text-amber-900">Backend API Unavailable</h4>
+                        <p className="text-xs text-amber-700 mt-1">Showing demo data for exploration. Real patient data is not available.</p>
+                      </div>
+                    </div>
+                  </div>
+                )} */}
+
+                {/* Success Banner - Show when using real data */}
+                {/* {!apiLoading && apiHealthy && apiData && (
+                  <div className="bg-green-50 rounded-xl shadow-sm border border-green-200 p-3 mb-6">
+                    <div className="flex items-center gap-3">
+                      <svg className="w-5 h-5 text-green-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div className="flex-1">
+                        <p className="text-xs font-medium text-green-800">Connected to Backend - Showing Real Patient Data</p>
+                      </div>
+                    </div>
+                  </div>
+                )} */}
+
+                {/* Render content only if not loading and dataset exists */}
+                {!apiLoading && currentDataset && (
+                  activeIndication === 'NHL'
+                    ? <PersonasNHLView
+                      timeline={filters.timeline}
+                      dataset={currentDataset}
+                      comparisonDataset={comparisonReference}
+                      onCardClick={openKaplanMeierModal}
+                      analysisType={filters.analysisType}
+                      gradientScheme={filters.gradientScheme}
+                      selectedPersona={selectedPersona}
+                      onResetToOverall={resetToOverallCohort}
+                      activeIndication={activeIndication}
+                      selectedCard={selectedCard}
+                    />
+                    : <PersonasBALLView
+                      timeline={filters.timeline}
+                      dataset={currentDataset}
+                      comparisonDataset={comparisonReference}
+                      onCardClick={openKaplanMeierModal}
+                      analysisType={filters.analysisType}
+                      gradientScheme={filters.gradientScheme}
+                      selectedPersona={selectedPersona}
+                      onResetToOverall={resetToOverallCohort}
+                      activeIndication={activeIndication}
+                      selectedCard={selectedCard}
+                    />
+                )}
+              </>
             ) : (
               // BENCHMARKING MODULE
               <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -1932,4 +2115,4 @@ export default function RWEDashboard() {
       />
     </div>
   );
-}
+} 

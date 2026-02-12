@@ -59,6 +59,17 @@ const transformAPIResponse = (apiResponse, indication, analysisType, timelineMon
 };
 
 const transformNHLData = (cohortSize, overallKm, personaBuckets, kmObjects, analysisType, timelineMonths) => {
+  console.log('🔄 Transforming NHL data:', {
+    cohortSize,
+    timelineMonths,
+    kmObjectsCount: kmObjects.length,
+    kmObjectsPreview: kmObjects.slice(0, 3).map(obj => ({
+      persona: obj.persona,
+      n: obj.n,
+      survival: Math.round(obj.y[timelineMonths] * 100)
+    }))
+  });
+
   // Create a mapping from persona names to survival data
   const personaMap = {};
   kmObjects.forEach(obj => {
@@ -69,15 +80,22 @@ const transformNHLData = (cohortSize, overallKm, personaBuckets, kmObjects, anal
       os: survivalAtTimeline, 
       n: obj.n
     };
+    console.log(`📊 Mapped persona: "${obj.persona}" -> n=${obj.n}, survival=${survivalAtTimeline}%`);
   });
   
   // Transform to frontend structure
   const rows = [];
   
-  // Group personas by relapse type
+  // Group personas by relapse type - IMPORTANT: Match backend naming exactly
   const refractory = Object.keys(personaMap).filter(p => p.includes('Primary Refractory'));
-  const earlyRelapse = Object.keys(personaMap).filter(p => p.includes('Early Relapsed'));
-  const lateRelapse = Object.keys(personaMap).filter(p => p.includes('Late Relapsed'));
+  const earlyRelapse = Object.keys(personaMap).filter(p => p.includes('Early Relapse'));
+  const lateRelapse = Object.keys(personaMap).filter(p => p.includes('Late Relapse'));
+  
+  console.log('🔍 Grouped personas:', {
+    refractory: refractory.length,
+    earlyRelapse: earlyRelapse.length,
+    lateRelapse: lateRelapse.length
+  });
   
   if (refractory.length > 0) {
     rows.push(createNHLRow('refractory', 'Primary Refractory', 'No Response to Frontline Treatment', refractory, personaMap));
@@ -90,6 +108,12 @@ const transformNHLData = (cohortSize, overallKm, personaBuckets, kmObjects, anal
   if (lateRelapse.length > 0) {
     rows.push(createNHLRow('late_relapse', 'Late Relapse', 'Relapse after 12M from last line of Therapy', lateRelapse, personaMap));
   }
+  
+  console.log('✅ NHL transformation complete:', {
+    totalPatients: cohortSize,
+    rowsCreated: rows.length,
+    rowDetails: rows.map(r => ({ id: r.id, title: r.title, totalN: r.totalN }))
+  });
   
   return {
     totalPatients: cohortSize,
@@ -115,6 +139,12 @@ const transformNHLData = (cohortSize, overallKm, personaBuckets, kmObjects, anal
 };
 
 const createNHLRow = (id, title, desc, personas, personaMap) => {
+  console.log(`🏗️ Creating NHL row: "${title}"`, {
+    id,
+    personasCount: personas.length,
+    personas: personas
+  });
+
   const values = {
     nb_low: { pfs: 0, os: 0, n: 0 },
     nb_high: { pfs: 0, os: 0, n: 0 },
@@ -128,15 +158,37 @@ const createNHLRow = (id, title, desc, personas, personaMap) => {
     const data = personaMap[persona];
     totalN += data.n;
     
+    console.log(`  📌 Processing persona: "${persona}"`, {
+      n: data.n,
+      pfs: data.pfs,
+      os: data.os
+    });
+    
     // Map persona to column based on characteristics
     if (persona.includes('Non-Bulky') && persona.includes('Low (0–2)')) {
       values.nb_low = data;
+      console.log(`    ✅ Assigned to nb_low:`, data);
     } else if (persona.includes('Non-Bulky') && persona.includes('High (3–5)')) {
       values.nb_high = data;
+      console.log(`    ✅ Assigned to nb_high:`, data);
     } else if (persona.includes('Bulky') && persona.includes('Low (0–2)')) {
       values.b_low = data;
+      console.log(`    ✅ Assigned to b_low:`, data);
     } else if (persona.includes('Bulky') && persona.includes('High (3–5)')) {
       values.b_high = data;
+      console.log(`    ✅ Assigned to b_high:`, data);
+    } else {
+      console.warn(`    ⚠️ Could not map persona to column:`, persona);
+    }
+  });
+  
+  console.log(`✅ Row "${title}" created:`, {
+    totalN,
+    values: {
+      nb_low: values.nb_low.n,
+      nb_high: values.nb_high.n,
+      b_low: values.b_low.n,
+      b_high: values.b_high.n
     }
   });
   
@@ -150,6 +202,17 @@ const createNHLRow = (id, title, desc, personas, personaMap) => {
 };
 
 const transformBALLData = (cohortSize, overallKm, personaBuckets, kmObjects, analysisType, timelineMonths) => {
+  console.log('🔄 Transforming B-ALL data:', {
+    cohortSize,
+    timelineMonths,
+    kmObjectsCount: kmObjects.length,
+    kmObjectsPreview: kmObjects.slice(0, 3).map(obj => ({
+      persona: obj.persona,
+      n: obj.n,
+      survival: Math.round(obj.y[timelineMonths] * 100)
+    }))
+  });
+
   const personaMap = {};
   kmObjects.forEach(obj => {
     const survivalAtTimeline = Math.round(obj.y[timelineMonths] * 100);
@@ -158,12 +221,18 @@ const transformBALLData = (cohortSize, overallKm, personaBuckets, kmObjects, ana
       os: survivalAtTimeline,  // Same value - will be correct based on API call
       n: obj.n
     };
+    console.log(`📊 Mapped persona: "${obj.persona}" -> n=${obj.n}, survival=${survivalAtTimeline}%`);
   });
   
   const rows = [];
   
   const refractory = Object.keys(personaMap).filter(p => p.includes('Refractory'));
   const relapsed = Object.keys(personaMap).filter(p => p.includes('Relapsed') && !p.includes('Refractory'));
+  
+  console.log('🔍 Grouped personas:', {
+    refractory: refractory.length,
+    relapsed: relapsed.length
+  });
   
   if (refractory.length > 0) {
     rows.push(createBALLRow('refractory', 'Refractory Population', 'Disease that did not respond to the last line of therapy.', refractory, personaMap));
@@ -172,6 +241,12 @@ const transformBALLData = (cohortSize, overallKm, personaBuckets, kmObjects, ana
   if (relapsed.length > 0) {
     rows.push(createBALLRow('relapsed', 'Relapsed Population', 'Disease that returned after a period of improvement.', relapsed, personaMap));
   }
+  
+  console.log('✅ B-ALL transformation complete:', {
+    totalPatients: cohortSize,
+    rowsCreated: rows.length,
+    rowDetails: rows.map(r => ({ id: r.id, title: r.title, totalN: r.totalN }))
+  });
   
   return {
     totalPatients: cohortSize,
@@ -195,6 +270,12 @@ const transformBALLData = (cohortSize, overallKm, personaBuckets, kmObjects, ana
 };
 
 const createBALLRow = (id, title, desc, personas, personaMap) => {
+  console.log(`🏗️ Creating B-ALL row: "${title}"`, {
+    id,
+    personasCount: personas.length,
+    personas: personas
+  });
+
   const values = {
     low: { pfs: 0, os: 0, n: 0 },
     high: { pfs: 0, os: 0, n: 0 }
@@ -206,10 +287,28 @@ const createBALLRow = (id, title, desc, personas, personaMap) => {
     const data = personaMap[persona];
     totalN += data.n;
     
+    console.log(`  📌 Processing persona: "${persona}"`, {
+      n: data.n,
+      pfs: data.pfs,
+      os: data.os
+    });
+    
     if (persona.includes('Blast <5%')) {
       values.low = data;
+      console.log(`    ✅ Assigned to low:`, data);
     } else if (persona.includes('Blast ≥5%')) {
       values.high = data;
+      console.log(`    ✅ Assigned to high:`, data);
+    } else {
+      console.warn(`    ⚠️ Could not map persona to column:`, persona);
+    }
+  });
+  
+  console.log(`✅ Row "${title}" created:`, {
+    totalN,
+    values: {
+      low: values.low.n,
+      high: values.high.n
     }
   });
   

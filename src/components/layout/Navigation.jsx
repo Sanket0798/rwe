@@ -6,9 +6,9 @@ const Navigation = () => {
   const location = useLocation();
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-0 shadow-sm">
+    <nav className="bg-white border-b border-gray-200 sticky top-0 shadow-sm z-50">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex space-x-1 ml-[130px]">
+        <div className="flex space-x-1 ml-[300px] 2xl:ml-[130px]">
           {NAVIGATION_TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = location.pathname === tab.path;

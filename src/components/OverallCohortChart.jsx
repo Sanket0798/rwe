@@ -267,15 +267,19 @@ const OverallCohortChart = ({
     };
 
     // Calculate key statistics using EXACT data
-    const survivalAt12Months = timePoints.includes(12)
-      ? Math.round(survivalData[timePoints.indexOf(12)] * 100)
-      : Math.round(survivalData[Math.min(12, survivalData.length - 1)] * 100);
+    // Extract timeline months from the timeline prop (e.g., "12 Month" -> 12)
+    const timelineMonths = parseInt(timeline.split(' ')[0]);
+    
+    const survivalAtTimeline = timePoints.includes(timelineMonths)
+      ? Math.round(survivalData[timePoints.indexOf(timelineMonths)] * 100)
+      : Math.round(survivalData[Math.min(timelineMonths, survivalData.length - 1)] * 100);
 
     const medianIndex = survivalData.findIndex(point => point <= 0.5);
     const medianTime = medianIndex !== -1 ? timePoints[medianIndex] : maxTime;
 
     console.log('📈 Calculated statistics:', {
-      survivalAt12Months,
+      timelineMonths,
+      survivalAtTimeline,
       medianTime,
       medianIndex
     });
@@ -298,10 +302,10 @@ const OverallCohortChart = ({
           <div className="bg-teal-50 rounded-xl p-4 border border-teal-100">
             <div className="flex items-center gap-2 mb-2">
               <Activity className="w-4 h-4 text-teal-600" />
-              <div className="text-sm text-teal-600 font-medium">12-Month {analysisType}</div>
+              <div className="text-sm text-teal-600 font-medium">{timelineMonths}-Month {analysisType}</div>
             </div>
             <div className="text-2xl font-bold text-teal-900">
-              {data.persona_info?.isEmpty ? 'N/A' : `${survivalAt12Months}%`}
+              {data.persona_info?.isEmpty ? '0' : `${survivalAtTimeline}%`}
             </div>
             <div className="text-xs text-teal-600 mt-1">
               {data.persona_info?.isEmpty ? 'No data available' : 'Survival Rate'}
@@ -314,7 +318,7 @@ const OverallCohortChart = ({
               <div className="text-sm text-amber-600 font-medium">Median {analysisType}</div>
             </div>
             <div className="text-2xl font-bold text-amber-900">
-              {data.persona_info?.isEmpty ? 'N/A' : medianTime.toFixed(1)}
+              {data.persona_info?.isEmpty ? '0' : medianTime.toFixed(1)}
             </div>
             <div className="text-xs text-amber-600 mt-1">
               {data.persona_info?.isEmpty ? 'No data available' : 'Months'}
