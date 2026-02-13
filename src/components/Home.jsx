@@ -3,7 +3,7 @@ import React from 'react';
 const HomePage = () => (
   <div className="space-y-8 px-4 sm:px-6 lg:px-0">
     <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 lg:p-8">
-      <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-emerald-700 mb-4">Welcome to Actelligence</h2>
+      <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-emerald-700 mb-4">Welcome to ACTelligence</h2>
       <p className="text-gray-700 text-base sm:text-lg leading-relaxed mb-6">
         An interactive web app for exploratory survival analysis of real-world leukemia and lymphoma patients 
         undergoing CAR-T therapy.

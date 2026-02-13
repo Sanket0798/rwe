@@ -7,7 +7,7 @@ const GlobalCARTBenchmark = () => {
         <h2 className="text-2xl font-bold text-gray-900">
           Performance Benchmark
         </h2>
-        <p className="text-lg text-teal-700 font-semibold mt-1">CAR-T Therapy Comparison</p>
+        <p className="text-lg text-teal-700 font-semibold mt-1">Global CAR-T Comparative Analysis</p>
       </div>
 
       <div className="p-8">
