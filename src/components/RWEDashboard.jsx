@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import KaplanMeierModal from './KaplanMeierModal';
 import OverallCohortChart from './OverallCohortChart';
+import LinesOfFailure from './LinesOfFailure';
 import Global2 from './Global2';
 // import APIStatus from './common/APIStatus';
 import { useSurvivalAnalysis } from '../hooks/useSurvivalAnalysis';
@@ -189,7 +190,7 @@ const DATA_NHL_NEXCAR = {
     },
     {
       id: "early_relapse",
-      title: "Early Relapse",
+      title: "Early Relapsed",
       totalN: 54,
       desc: "Relapse within 12M from last line of therapy",
       values: {
@@ -201,7 +202,7 @@ const DATA_NHL_NEXCAR = {
     },
     {
       id: "late_relapse",
-      title: "Late Relapse",
+      title: "Late Relapsed",
       totalN: 21,
       desc: "Relapse after 12M from last line of therapy",
       values: {
@@ -896,6 +897,7 @@ const FilterSidebar = ({
                 <option value="1 Month">1 Month</option>
                 <option value="3 Month">3 Months</option>
                 <option value="6 Month">6 Months</option>
+                <option value="9 Month">9 Months</option>
                 <option value="12 Month">12 Months</option>
                 <option value="18 Month">18 Months</option>
               </select>
@@ -1090,15 +1092,21 @@ const PersonasNHLView = ({ timeline, dataset, comparisonDataset, onCardClick, an
                   // Check if this card is selected
                   const isSelected = selectedCard && selectedCard.rowId === row.id && selectedCard.colId === col.id;
 
+                  // Check if card should be disabled (0% with 0 patients)
+                  const isDisabled = currentValue === 0 && row.values[col.id].n === 0;
+
                   return (
                     <div key={`${row.id}-${col.id}`} className="col-span-2">
                       <div
-                        className={`h-20 lg:h-28 rounded-lg p-2 lg:p-3 flex flex-col justify-between transition-all hover:scale-[1.02] hover:shadow-lg cursor-pointer ${textColor} relative overflow-hidden ${isSelected
+                        className={`h-20 lg:h-28 rounded-lg p-2 lg:p-3 flex flex-col justify-between transition-all ${isDisabled
+                          ? 'cursor-not-allowed opacity-40 grayscale'
+                          : 'hover:scale-[1.02] hover:shadow-lg cursor-pointer'
+                          } ${textColor} relative overflow-hidden ${isSelected
                             ? 'border-4 border-black/40 shadow-xl'
                             : 'border border-white'
                           }`}
-                        style={{ backgroundColor: cardColor }}
-                        onClick={() => onCardClick && onCardClick(row.values[col.id], row, col)}
+                        style={{ backgroundColor: isDisabled ? '#e2e8f0' : cardColor }}
+                        onClick={() => !isDisabled && onCardClick && onCardClick(row.values[col.id], row, col)}
                       >
                         {/* Subtle gradient overlay for depth */}
                         <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-black/5 pointer-events-none" />
@@ -1138,7 +1146,7 @@ const PersonasNHLView = ({ timeline, dataset, comparisonDataset, onCardClick, an
         </div>
       </div>
 
-      {/* Overall Cohort Kaplan-Meier Chart - NEW DEFAULT DISPLAY */}
+      {/* Overall Cohort Kaplan-Meier Chart - Shows the comparison graph */}
       <OverallCohortChart
         indication={activeIndication}
         analysisType={analysisType}
@@ -1147,7 +1155,16 @@ const PersonasNHLView = ({ timeline, dataset, comparisonDataset, onCardClick, an
         overallCohortData={dataset?.overallCohort || null}
         selectedPersonaData={selectedPersona}
         onResetToOverall={onResetToOverall}
+        filters={{
+          activeLevel: 'global',
+          selectedInstitute: '',
+          selectedRegion: '',
+          selectedPhysician: ''
+        }}
+        selectedCard={selectedCard}
       />
+
+
     </div>
   );
 };
@@ -1213,15 +1230,21 @@ const PersonasBALLView = ({ timeline, dataset, comparisonDataset, onCardClick, a
                   // Check if this card is selected
                   const isSelected = selectedCard && selectedCard.rowId === row.id && selectedCard.colId === col.id;
 
+                  // Check if card should be disabled (0% with 0 patients)
+                  const isDisabled = currentValue === 0 && row.values[col.id].n === 0;
+
                   return (
                     <div key={`${row.id}-${col.id}`} className="col-span-2">
                       <div
-                        className={`h-20 lg:h-28 rounded-lg p-2 lg:p-3 flex flex-col justify-between transition-all hover:shadow-lg cursor-pointer ${textColor} relative overflow-hidden ${isSelected
+                        className={`h-20 lg:h-28 rounded-lg p-2 lg:p-3 flex flex-col justify-between transition-all ${isDisabled
+                          ? 'cursor-not-allowed opacity-40 grayscale'
+                          : 'hover:shadow-lg cursor-pointer'
+                          } ${textColor} relative overflow-hidden ${isSelected
                             ? 'border-4 border-black/40 shadow-xl'
                             : 'border border-white/20'
                           }`}
-                        style={{ backgroundColor: cardColor }}
-                        onClick={() => onCardClick && onCardClick(row.values[col.id], row, col)}
+                        style={{ backgroundColor: isDisabled ? '#e2e8f0' : cardColor }}
+                        onClick={() => !isDisabled && onCardClick && onCardClick(row.values[col.id], row, col)}
                       >
                         {/* Subtle gradient overlay for depth */}
                         <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-black/5 pointer-events-none" />
@@ -1269,7 +1292,7 @@ const PersonasBALLView = ({ timeline, dataset, comparisonDataset, onCardClick, a
         </div>
       </div>
 
-      {/* Overall Cohort Kaplan-Meier Chart - NEW DEFAULT DISPLAY */}
+      {/* Overall Cohort Kaplan-Meier Chart - Shows the comparison graph */}
       <OverallCohortChart
         indication={activeIndication}
         analysisType={analysisType}
@@ -1278,7 +1301,16 @@ const PersonasBALLView = ({ timeline, dataset, comparisonDataset, onCardClick, a
         overallCohortData={dataset?.overallCohort || null}
         selectedPersonaData={selectedPersona}
         onResetToOverall={onResetToOverall}
+        filters={{
+          activeLevel: 'global',
+          selectedInstitute: '',
+          selectedRegion: '',
+          selectedPhysician: ''
+        }}
+        selectedCard={selectedCard}
       />
+
+
     </div>
   );
 };
@@ -1305,17 +1337,48 @@ export default function RWEDashboard() {
     selectedPhysician: '',
     comparator: 'Global CAR-T',
     selectedRegimen: '',
-    analysisType: 'PFS', // New filter for PFS/OS
-    gradientScheme: 'clinical' // New filter for gradient color scheme
+    analysisType: 'PFS',
+    gradientScheme: 'clinical'
   });
 
-  // NEW: State for selected persona chart
   const [selectedPersona, setSelectedPersona] = useState(null);
 
-  // NEW: State for selected card (to show border)
   const [selectedCard, setSelectedCard] = useState(null);
 
-  // Use the survival analysis hook for real data
+  useEffect(() => {
+    console.log('🔄 Filters changed - resetting selected card and persona');
+    setSelectedCard(null);
+    setSelectedPersona(null);
+  }, [
+    filters.activeLevel,
+    filters.selectedInstitute,
+    filters.selectedRegion,
+    filters.selectedPhysician,
+    filters.timeline,
+    activeIndication,
+    filters.analysisType
+  ]);
+
+  // NEW: Check if user needs to select a filter value
+  const needsFilterSelection = useMemo(() => {
+    // Only check for personas module
+    if (activeModule !== 'personas') return false;
+
+    // Check each filter level
+    if (filters.activeLevel === 'institute' && !filters.selectedInstitute) {
+      return { needed: true, type: 'hospital', message: 'Please select a hospital from the dropdown to view data' };
+    }
+    if (filters.activeLevel === 'region' && !filters.selectedRegion) {
+      return { needed: true, type: 'region', message: 'Please select a geographic region from the dropdown to view data' };
+    }
+    if (filters.activeLevel === 'physician' && !filters.selectedPhysician) {
+      return { needed: true, type: 'physician', message: 'Please select a physician from the dropdown to view data' };
+    }
+
+    // No selection needed (either global or a value is already selected)
+    return { needed: false };
+  }, [activeModule, filters.activeLevel, filters.selectedInstitute, filters.selectedRegion, filters.selectedPhysician]);
+
   const {
     data: apiData,
     loading: apiLoading,
@@ -1323,14 +1386,12 @@ export default function RWEDashboard() {
     apiHealthy
   } = useSurvivalAnalysis(filters, activeIndication, activeModule);
 
-  // Use the filters data hook for real filter options
   const {
     filtersData,
     loading: filtersLoading,
     // error: filtersError
   } = useFiltersData();
 
-  // Add test functions to window for debugging (development only)
   React.useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
       // Simple inline test
@@ -1351,6 +1412,8 @@ export default function RWEDashboard() {
         console.log('API Test Result:', result);
         return result;
       };
+
+      // console.log(runQuickTest, "")
 
       window.testSurvival = async () => {
         console.log('🧪 Testing survival analysis...');
@@ -1435,14 +1498,25 @@ export default function RWEDashboard() {
   // NEW: Function to handle persona card clicks
   const handlePersonaCardClick = (cohortData, rowData, columnData) => {
     try {
-      // Set the selected card for visual indication
-      setSelectedCard({ rowId: rowData.id, colId: columnData.id });
+      // Set the selected card for visual indication - STORE FULL OBJECTS
+      setSelectedCard({
+        rowId: rowData.id,
+        colId: columnData.id,
+        row: rowData,      // Store full row object
+        col: columnData    // Store full column object
+      });
+
+      // Construct persona title based on indication
+      const personaTitle = activeIndication === 'NHL'
+        ? `${rowData.title} | ${columnData.sub} | IPI ${columnData.label.includes('Low') ? 'Low' : 'High'} (${columnData.range.replace('-', '–')})`
+        : `${rowData.title.replace(' Population', '')} | Blast ${columnData.sub === 'Low' ? '<5%' : '≥5%'}`;
 
       console.log('🎯 Persona card clicked:', {
         cohortData,
         rowData: rowData?.title,
         columnData: columnData?.label,
         columnData_full: columnData,
+        'Constructed Persona Title': personaTitle,
         'Card Values': {
           pfs: cohortData.pfs,
           os: cohortData.os,
@@ -1745,11 +1819,10 @@ export default function RWEDashboard() {
               <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
                 <div className="flex flex-col gap-4">
                   {/* Active Filters */}
-                  <div className="flex-1">
-                    <div className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Active Filters</div>
+                  <div className="flex flex-row items-center gap-3">
+                    <div className="text-sm font-bold text-slate-500 uppercase tracking-wider">Active Filters:</div>
                     <div className="flex flex-wrap gap-3">
                       {(() => {
-                        const filterTexts = [];
                         const levelNames = {
                           'global': 'Overall Cohort',
                           'region': 'Geographic Regions',
@@ -1757,40 +1830,81 @@ export default function RWEDashboard() {
                           'physician': 'Physicians'
                         };
 
-                        if (filters.activeLevel !== 'global') {
-                          filterTexts.push(`Level: ${levelNames[filters.activeLevel]}`);
-
-                          if (filters.activeLevel === 'region' && filters.selectedRegion) {
-                            filterTexts.push(`Region: ${filters.selectedRegion}`);
-                          }
-                          if (filters.activeLevel === 'institute' && filters.selectedInstitute) {
-                            filterTexts.push(`Hospital: ${filters.selectedInstitute}`);
-                          }
-                          if (filters.activeLevel === 'physician' && filters.selectedPhysician) {
-                            filterTexts.push(`Physician: ${filters.selectedPhysician}`);
-                          }
-                        }
-
-                        const isFiltered = filters.activeLevel !== 'global';
-                        const displayTexts = filterTexts.length > 0 ? filterTexts : ['All Patients (Overall Cohort)'];
+                        // Handler to reset to Overall Cohort while preserving indication, analysis type, and timeline
+                        const handleResetToOverallCohort = () => {
+                          setFilters(prev => ({
+                            ...prev,
+                            activeLevel: 'global',
+                            selectedInstitute: '',
+                            selectedRegion: '',
+                            selectedPhysician: ''
+                            // Preserve: analysisType, timeline, indication (activeIndication state)
+                          }));
+                        };
 
                         return (
                           <>
-                            {displayTexts.map((filter, index) => (
-                              <span key={index} className={`px-3 py-2 rounded-full text-sm font-semibold ${isFiltered ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-700'}`}>
-                                {filter}
+                            {/* Show "All Patients" or Level badge */}
+                            {filters.activeLevel === 'global' ? (
+                              <span className="px-3 py-2 rounded-full text-[13px] font-semibold bg-slate-100 text-slate-700">
+                                All Patients (Overall Cohort)
                               </span>
-                            ))}
+                            ) : (
+                              <span className="px-3 py-2 rounded-full text-[13px] font-semibold bg-amber-50 text-amber-700">
+                                Level: {levelNames[filters.activeLevel]}
+                              </span>
+                            )}
+
+                            {/* Dynamic badges with close buttons */}
+                            {filters.activeLevel === 'region' && filters.selectedRegion && (
+                              <span className="px-3 py-2 rounded-full text-[13px] font-semibold bg-amber-50 text-amber-700 max-w-xs truncate inline-flex items-center gap-2" title={`Region: ${filters.selectedRegion}`}>
+                                <span className="truncate">Region: {filters.selectedRegion}</span>
+                                <button
+                                  onClick={handleResetToOverallCohort}
+                                  className="flex-shrink-0 hover:bg-amber-100 rounded-full p-0.5 transition-colors"
+                                  aria-label="Clear region filter"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </span>
+                            )}
+
+                            {filters.activeLevel === 'institute' && filters.selectedInstitute && (
+                              <span className="px-3 py-2 rounded-full text-[13px] font-semibold bg-amber-50 text-amber-700 max-w-xs truncate inline-flex items-center gap-2" title={`Hospital: ${filters.selectedInstitute}`}>
+                                <span className="truncate">Hospital: {filters.selectedInstitute}</span>
+                                <button
+                                  onClick={handleResetToOverallCohort}
+                                  className="flex-shrink-0 hover:bg-amber-100 rounded-full p-0.5 transition-colors"
+                                  aria-label="Clear hospital filter"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </span>
+                            )}
+
+                            {filters.activeLevel === 'physician' && filters.selectedPhysician && (
+                              <span className="px-3 py-2 rounded-full text-[13px] font-semibold bg-amber-50 text-amber-700 max-w-xs truncate inline-flex items-center gap-2" title={`Physician: ${filters.selectedPhysician}`}>
+                                <span className="truncate">Physician: {filters.selectedPhysician}</span>
+                                <button
+                                  onClick={handleResetToOverallCohort}
+                                  className="flex-shrink-0 hover:bg-amber-100 rounded-full p-0.5 transition-colors"
+                                  aria-label="Clear physician filter"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </span>
+                            )}
+
                             {/* Add Indication badge */}
-                            <span className="px-3 py-2 rounded-full text-sm font-semibold bg-teal-50 text-teal-700">
+                            <span className="px-3 py-2 rounded-full text-[13px] font-semibold bg-teal-50 text-teal-700">
                               {activeIndication}
                             </span>
                             {/* Add PFS/OS badge */}
-                            <span className="px-3 py-2 rounded-full text-sm font-semibold bg-indigo-50 text-indigo-700">
+                            <span className="px-3 py-2 rounded-full text-[13px] font-semibold bg-indigo-50 text-indigo-700">
                               {filters.analysisType}
                             </span>
                             {/* Add Timeline badge */}
-                            <span className="px-3 py-2 rounded-full text-sm font-semibold bg-indigo-50 text-indigo-700">
+                            <span className="px-3 py-2 rounded-full text-[13px] font-semibold bg-indigo-50 text-indigo-700">
                               {filters.timeline}
                             </span>
                           </>
@@ -1804,8 +1918,8 @@ export default function RWEDashboard() {
           )}
 
           {/* --- Top Control Area --- */}
-          <div className="flex flex-col items-center gap-4 mb-6">
-            <div className="flex items-center gap-2">
+          <div className={`flex flex-col items-center gap-4 ${activeModule === 'personas' ? 'mb-6' : ''}`}>
+            {/* <div className="flex items-center gap-2">
               <Badge color={activeModule === 'benchmarking' ? "amber" : "indigo"}>
                 {activeModule === 'benchmarking' ? "Comparative Analysis" : "NexCAR19 RWE"}
               </Badge>
@@ -1817,7 +1931,7 @@ export default function RWEDashboard() {
                   </Badge>
                 </>
               )}
-            </div>
+            </div> */}
             <div className="bg-white border border-slate-200 p-1 rounded-full shadow-sm inline-flex">
               <button
                 onClick={() => { setActiveModule('personas'); setFilters(f => ({ ...f, timeline: '12 Month' })); }}
@@ -2050,31 +2164,52 @@ export default function RWEDashboard() {
 
                 {/* Render content only if not loading and dataset exists */}
                 {!apiLoading && currentDataset && (
-                  activeIndication === 'NHL'
-                    ? <PersonasNHLView
-                      timeline={filters.timeline}
-                      dataset={currentDataset}
-                      comparisonDataset={comparisonReference}
-                      onCardClick={openKaplanMeierModal}
-                      analysisType={filters.analysisType}
-                      gradientScheme={filters.gradientScheme}
-                      selectedPersona={selectedPersona}
-                      onResetToOverall={resetToOverallCohort}
-                      activeIndication={activeIndication}
-                      selectedCard={selectedCard}
-                    />
-                    : <PersonasBALLView
-                      timeline={filters.timeline}
-                      dataset={currentDataset}
-                      comparisonDataset={comparisonReference}
-                      onCardClick={openKaplanMeierModal}
-                      analysisType={filters.analysisType}
-                      gradientScheme={filters.gradientScheme}
-                      selectedPersona={selectedPersona}
-                      onResetToOverall={resetToOverallCohort}
-                      activeIndication={activeIndication}
-                      selectedCard={selectedCard}
-                    />
+                  // Check if user needs to select a filter value first
+                  needsFilterSelection.needed ? (
+                    // Show placeholder message when filter selection is required
+                    <div className="flex flex-col items-center justify-center min-h-[500px] bg-white rounded-xl shadow-sm border-2 border-amber-200 p-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                      <div className="bg-amber-50 rounded-full p-6 mb-6">
+                        <Filter className="w-16 h-16 text-amber-600" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-slate-800 mb-3">Filter Selection Required</h3>
+                      <p className="text-lg text-slate-600 mb-6 text-center max-w-md">
+                        {needsFilterSelection.message}
+                      </p>
+                      <div className="flex items-center gap-2 text-sm text-slate-500">
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>Use the filter panel on the left to make your selection</span>
+                      </div>
+                    </div>
+                  ) : (
+                    // Show actual data when filter is selected or not needed
+                    activeIndication === 'NHL'
+                      ? <PersonasNHLView
+                        timeline={filters.timeline}
+                        dataset={currentDataset}
+                        comparisonDataset={comparisonReference}
+                        onCardClick={openKaplanMeierModal}
+                        analysisType={filters.analysisType}
+                        gradientScheme={filters.gradientScheme}
+                        selectedPersona={selectedPersona}
+                        onResetToOverall={resetToOverallCohort}
+                        activeIndication={activeIndication}
+                        selectedCard={selectedCard}
+                      />
+                      : <PersonasBALLView
+                        timeline={filters.timeline}
+                        dataset={currentDataset}
+                        comparisonDataset={comparisonReference}
+                        onCardClick={openKaplanMeierModal}
+                        analysisType={filters.analysisType}
+                        gradientScheme={filters.gradientScheme}
+                        selectedPersona={selectedPersona}
+                        onResetToOverall={resetToOverallCohort}
+                        activeIndication={activeIndication}
+                        selectedCard={selectedCard}
+                      />
+                  )
                 )}
               </>
             ) : (

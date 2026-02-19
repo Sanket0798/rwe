@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { LineChart as LineChartIcon, Info, Activity, TrendingUp } from 'lucide-react';
 import { fetchSurvivalAnalysis } from '../services/survivalAnalysisService';
+import LinesOfFailure from './LinesOfFailure';
 
 // Generate mock data as fallback (moved outside component to avoid useEffect dependency warning)
 const generateMockOverallData = (indication) => {
@@ -30,7 +31,9 @@ const OverallCohortChart = ({
   gradientScheme = 'clinical',
   overallCohortData = null,
   selectedPersonaData = null, // NEW: for individual persona data
-  onResetToOverall = null // NEW: callback to reset to overall view
+  onResetToOverall = null, // NEW: callback to reset to overall view
+  filters = null, // NEW: for Lines of Failure
+  selectedCard = null // NEW: for Lines of Failure
 }) => {
   console.log('🔄 OverallCohortChart rendered with:', {
     indication,
@@ -207,6 +210,9 @@ const OverallCohortChart = ({
     setupChartData();
   }, [indication, analysisType, timeline, overallCohortData, selectedPersonaData]);
 
+  // Calculate if we should show the overall baseline (needed outside ChartComponent too)
+  const hasOverallBaseline = overallCohortData && overallCohortData.kmData && selectedPersonaData;
+
   // Chart rendering component
   const ChartComponent = ({ data }) => {
     const width = 800;
@@ -215,16 +221,34 @@ const OverallCohortChart = ({
     const chartWidth = width - margin.left - margin.right;
     const chartHeight = height - margin.top - margin.bottom;
 
-    // Use EXACT data from backend API
+    // IMPORTANT: When showing persona data, we need BOTH curves:
+    // 1. Overall cohort (dotted baseline) - from overallCohortData prop
+    // 2. Selected persona (solid line) - from selectedPersonaData prop
+    
+    // Primary data to display (persona if selected, otherwise overall)
     const timePoints = data.overall_km.x; // [0, 1, 2, 3, ..., 24]
     const survivalData = data.overall_km.y; // [1.0, 0.948, 0.840, ..., 0.396]
     const maxTime = Math.max(...timePoints); // Should be 24
 
-    console.log('📊 Plotting exact backend data:', {
-      timePoints: timePoints.slice(0, 5), // First 5 points
-      survivalData: survivalData.slice(0, 5), // First 5 points
-      maxTime,
-      totalPoints: timePoints.length
+    // Overall cohort baseline data (always available from overallCohortData prop)
+    // Note: hasOverallBaseline is defined at component level, not here
+    const overallTimePoints = hasOverallBaseline ? overallCohortData.kmData.x : null;
+    const overallSurvivalData = hasOverallBaseline ? overallCohortData.kmData.y : null;
+
+    console.log('📊 Plotting chart data:', {
+      currentView,
+      hasPersonaData: !!selectedPersonaData,
+      hasOverallBaseline,
+      primaryCurve: {
+        timePoints: timePoints.slice(0, 5),
+        survivalData: survivalData.slice(0, 5),
+        totalPoints: timePoints.length
+      },
+      baselineCurve: hasOverallBaseline ? {
+        timePoints: overallTimePoints.slice(0, 5),
+        survivalData: overallSurvivalData.slice(0, 5),
+        totalPoints: overallTimePoints.length
+      } : 'not shown'
     });
 
     // Scale functions
@@ -348,7 +372,26 @@ const OverallCohortChart = ({
             </div>
           ) : (
             // Normal chart display
-            <svg width={width} height={height} className="rounded-lg">
+            <div className="w-full">
+              {/* Legend - only show when both curves are displayed */}
+              {hasOverallBaseline && (
+                <div className="flex items-center justify-center gap-6 mb-4 pb-3 border-b border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <svg width="40" height="4">
+                      <line x1="0" y1="2" x2="40" y2="2" stroke="#94a3b8" strokeWidth="3" strokeDasharray="8,4" opacity="0.7" />
+                    </svg>
+                    <span className="text-sm text-slate-600 font-medium">Overall Cohort (Baseline)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <svg width="40" height="4">
+                      <line x1="0" y1="2" x2="40" y2="2" stroke="#0EA5E9" strokeWidth="4" />
+                    </svg>
+                    <span className="text-sm text-teal-700 font-medium">Selected Subgroup</span>
+                  </div>
+                </div>
+              )}
+              
+              <svg width={width} height={height} className="rounded-lg">
               {/* Grid lines */}
               <g transform={`translate(${margin.left}, ${margin.top})`}>
                 {/* Horizontal grid lines */}
@@ -376,7 +419,34 @@ const OverallCohortChart = ({
                   />
                 ))}
 
-                {/* Main Kaplan-Meier curve using EXACT backend data */}
+                {/* BASELINE: Overall Cohort curve (dotted) - shown when persona is selected */}
+                {hasOverallBaseline && (
+                  <>
+                    <path
+                      d={generateKMPath(overallTimePoints, overallSurvivalData)}
+                      fill="none"
+                      stroke="#94a3b8"
+                      strokeWidth={3}
+                      strokeDasharray="8,4"
+                      opacity={0.7}
+                    />
+                    {/* Overall cohort data points (smaller, subtle) */}
+                    {overallTimePoints.map((time, index) => (
+                      <circle
+                        key={`overall-point-${index}`}
+                        cx={xScale(time)}
+                        cy={yScale(overallSurvivalData[index])}
+                        r={2}
+                        fill="#94a3b8"
+                        stroke="white"
+                        strokeWidth={1}
+                        opacity={0.6}
+                      />
+                    ))}
+                  </>
+                )}
+
+                {/* MAIN: Kaplan-Meier curve (solid) - persona or overall */}
                 <path
                   d={generateKMPath(timePoints, survivalData)}
                   fill="none"
@@ -511,6 +581,7 @@ const OverallCohortChart = ({
                 </g>
               )}
             </svg>
+            </div>
           )}
         </div>
       </div>
@@ -559,12 +630,6 @@ const OverallCohortChart = ({
                 : 'Overall Cohort Kaplan-Meier Curve'
               }
             </h3>
-            {/* <p className="text-sm text-slate-600 mt-2">
-              {currentView === 'persona' && chartData?.persona_info
-                ? chartData.persona_info.description
-                : `Default view showing ${analysisType} analysis for ${indication} patients over ${timeline.replace(' Month', ' months')}`
-              }
-            </p> */}
           </div>
         </div>
 
@@ -591,6 +656,28 @@ const OverallCohortChart = ({
         )}
       </div>
 
+      {/* Lines of Failure Analysis - Shows when persona card is clicked */}
+      {currentView === 'persona' && selectedCard && filters && (
+        <div className="mb-6">
+          <LinesOfFailure
+            indication={indication}
+            analysisType={analysisType}
+            timeline={timeline}
+            filters={filters}
+            selectedPersona={{
+              title: chartData?.persona_info?.persona || '',
+              row: selectedCard.row,
+              col: selectedCard.col
+            }}
+            onClose={() => {
+              if (onResetToOverall) {
+                onResetToOverall();
+              }
+            }}
+          />
+        </div>
+      )}
+
       {/* Chart Content */}
       {chartData && <ChartComponent data={chartData} />}
 
@@ -604,23 +691,17 @@ const OverallCohortChart = ({
               {chartData?.persona_info?.isEmpty ? (
                 <>
                   This patient subgroup (<strong>{chartData.persona_info.persona}</strong>) contains no patients in the current dataset.
-                  {/* This could indicate that this specific combination of disease characteristics and risk factors is rare,
-                  or that patients with these characteristics were not included in the current study population.
-                  Consider clicking on cards with patient data (non-zero values) to view meaningful survival curves. */}
                 </>
               ) : currentView === 'persona' && chartData?.persona_info ? (
                 <>
                   This Kaplan-Meier curve represents the {analysisType.toLowerCase()} probability for the specific patient subgroup: <strong>{chartData.persona_info.persona}</strong>.
-                  {/* The step-function shows the probability of remaining progression-free at each time point for this targeted population.
-                  This analysis includes {chartData?.overall_km?.n || 'available'} patients with these specific characteristics,
-                  providing insights into treatment efficacy for this particular risk profile. */}
+                  {hasOverallBaseline && (
+                    <> The <strong className="text-slate-500">dotted gray line</strong> shows the overall cohort baseline for comparison, allowing you to see how this subgroup performs relative to the entire patient population.</>
+                  )}
                 </>
               ) : (
                 <>
                   This Kaplan-Meier curve represents the overall {analysisType.toLowerCase()} probability for the entire {indication} patient cohort.
-                  {/* The step-function shows the probability of remaining progression-free at each time point.
-                  This analysis includes all {chartData?.overall_km?.n || 'available'} patients from the global dataset,
-                  providing a comprehensive view of treatment efficacy across all risk categories and disease characteristics. */}
                 </>
               )}
             </div>
